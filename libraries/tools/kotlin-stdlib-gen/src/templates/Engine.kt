@@ -12,6 +12,7 @@ enum class Family {
     Collections,
     Lists,
     Maps,
+    Sets,
     ArraysOfObjects,
     ArraysOfPrimitives,
     InvariantArraysOfObjects,
@@ -174,6 +175,7 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
             Collections -> "Collection<$isAsteriskOrT>"
             Lists -> "List<$isAsteriskOrT>"
             Maps -> "Map<K, V>"
+            Sets -> "Set<$isAsteriskOrT>"
             Sequences -> "Sequence<$isAsteriskOrT>"
             InvariantArraysOfObjects -> "Array<T>"
             ArraysOfObjects -> "Array<${isAsteriskOrT.replace("T", "out T")}>"
