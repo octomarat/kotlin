@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationTarget;
 import org.jetbrains.kotlin.diagnostics.*;
 import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
 import org.jetbrains.kotlin.lexer.JetTokens;
@@ -149,6 +150,7 @@ public class ModifiersChecker {
             checkVarargsModifiers(modifierListOwner, descriptor);
         }
         checkPlatformNameApplicability(descriptor);
+        checkAnnotationsTargetApplicability(descriptor);
         runDeclarationCheckers(modifierListOwner, descriptor);
     }
 
@@ -162,6 +164,7 @@ public class ModifiersChecker {
         reportIllegalModalityModifiers(modifierListOwner);
         reportIllegalVisibilityModifiers(modifierListOwner);
         checkPlatformNameApplicability(descriptor);
+        checkAnnotationsTargetApplicability(descriptor);
         runDeclarationCheckers(modifierListOwner, descriptor);
     }
 
@@ -318,6 +321,30 @@ public class ModifiersChecker {
             }
         }
 
+    }
+
+    private void checkAnnotationsTargetApplicability(@NotNull DeclarationDescriptor descriptor) {
+        for (AnnotationDescriptor annotation : descriptor.getAnnotations()) {
+            AnnotationTarget target = annotation.getTarget();
+
+            if (AnnotationTarget.FIELD == target) {
+                if (!(descriptor instanceof PropertyDescriptor)) {
+                    reportAnnotationTargetNotApplicable(annotation);
+                    continue;
+                }
+
+                PropertyDescriptor propertyDescriptor = (PropertyDescriptor) descriptor;
+                if (Boolean.FALSE.equals(trace.getBindingContext().get(BindingContext.BACKING_FIELD_REQUIRED, propertyDescriptor))) {
+                    reportAnnotationTargetNotApplicable(annotation);
+                }
+            }
+        }
+    }
+
+    private void reportAnnotationTargetNotApplicable(AnnotationDescriptor annotation) {
+        JetAnnotationEntry annotationEntry = trace.get(BindingContext.ANNOTATION_DESCRIPTOR_TO_PSI_ELEMENT, annotation);
+        if (annotationEntry == null) return;
+        trace.report(INAPPLICABLE_FIELD_TARGET.on(annotationEntry));
     }
 
     private static boolean isRenamableDeclaration(@NotNull DeclarationDescriptor descriptor) {
