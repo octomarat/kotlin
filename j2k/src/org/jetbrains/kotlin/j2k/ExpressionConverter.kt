@@ -137,6 +137,7 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
             is PsiClassType -> {
                 val psiClass = type.resolve() ?: return false
                 if (!psiClass.hasModifierProperty(PsiModifier.FINAL)) return false
+                if (psiClass.isEnum()) return true
 
                 val equalsSignature = GenerateEqualsHelper.getEqualsSignature(converter.project, GlobalSearchScope.allScope(converter.project))
                 val equalsMethod = MethodSignatureUtil.findMethodBySignature(psiClass, equalsSignature, true)
@@ -479,21 +480,26 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
         if (isExtension && arguments.isNotEmpty()) {
             arguments = arguments.drop(1)
         }
+
         val resolved = expression.resolveMethod()
         val parameters = resolved?.getParameterList()?.getParameters()
         val expectedTypes = parameters?.map { it.getType() } ?: listOf()
 
-        return if (arguments.size() == expectedTypes.size())
-            (0..arguments.lastIndex).map { i ->
-                val argument = arguments[i]
+        val commentsAndSpacesInheritance = CommentsAndSpacesInheritance.LINE_BREAKS
+
+        return if (arguments.size() == expectedTypes.size()) {
+            arguments.mapIndexed { i, argument ->
                 val converted = codeConverter.convertExpression(argument, expectedTypes[i])
-                if (parameters != null && i == arguments.lastIndex && parameters[i].isVarArgs() && argument.getType() is PsiArrayType)
-                    StarExpression(converted).assignNoPrototype()
+                val result = if (parameters != null && i == arguments.lastIndex && parameters[i].isVarArgs() && argument.getType() is PsiArrayType)
+                    StarExpression(converted)
                 else
                     converted
+                result.assignPrototype(argument, commentsAndSpacesInheritance)
             }
-        else
-            arguments.map { codeConverter.convertExpression(it) }
+        }
+        else {
+            arguments.map { codeConverter.convertExpression(it).assignPrototype(it, commentsAndSpacesInheritance) }
+        }
     }
 
     private fun getOperatorString(tokenType: IElementType): String {

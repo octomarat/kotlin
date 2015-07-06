@@ -214,7 +214,11 @@ class ConstructorConverter(
                                   if (isVal(converter.referenceSearcher, field)) Parameter.VarValModifier.Val else Parameter.VarValModifier.Var,
                                   converter.convertAnnotations(parameter) + converter.convertAnnotations(field),
                                   accessModifiers,
-                                  default).assignPrototypes(listOf(parameter, field), CommentsAndSpacesInheritance(blankLinesBefore = false))
+                                  default)
+                                .assignPrototypes(
+                                        PrototypeInfo(parameter, CommentsAndSpacesInheritance.LINE_BREAKS),
+                                        PrototypeInfo(field, CommentsAndSpacesInheritance.NO_SPACES)
+                                )
                     }
                 },
                 correctCodeConverter = { correct() })
