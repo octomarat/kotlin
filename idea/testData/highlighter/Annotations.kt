@@ -1,3 +1,4 @@
+<info descr="null" textAttributesKey="KOTLIN_ANNOTATION">target</info>(<info descr="null" textAttributesKey="KOTLIN_CLASS">AnnotationTarget</info>.<info descr="null" textAttributesKey="KOTLIN_ENUM_ENTRY">CLASSIFIER</info>, <info descr="null" textAttributesKey="KOTLIN_CLASS">AnnotationTarget</info>.<info descr="null" textAttributesKey="KOTLIN_ENUM_ENTRY">EXPRESSION</info>)
 <info descr="null">annotation</info> class <info descr="null">Ann</info>
 
 <info descr="null" textAttributesKey="KOTLIN_ANNOTATION">Ann</info> class <info descr="null">A1</info>
@@ -13,7 +14,7 @@ fun <info descr="null">foo</info>() {
 
     <info descr="null"><info descr="null">bar</info></info> <info descr="null" textAttributesKey="KOTLIN_ANNOTATION">@Ann</info> { 1 }
 
-    <error descr="[UNRESOLVED_REFERENCE] Unresolved reference: Err" textAttributesKey="WRONG_REFERENCES_ATTRIBUTES">@Err</error>
+    <error descr="[UNRESOLVED_REFERENCE] Unresolved reference: Err" textAttributesKey="WRONG_REFERENCES_ATTRIBUTES"><error descr="[WRONG_ANNOTATION_TARGET] This annotation is not applicable to target 'EXPRESSION'" textAttributesKey="ERRORS_ATTRIBUTES">@Err</error></error>
     <warning descr="[UNUSED_EXPRESSION] The expression is unused" textAttributesKey="WARNING_ATTRIBUTES">5</warning>
 }
 

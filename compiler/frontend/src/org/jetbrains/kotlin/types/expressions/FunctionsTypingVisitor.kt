@@ -46,6 +46,8 @@ import org.jetbrains.kotlin.utils.addIfNotNull
 
 public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : ExpressionTypingVisitor(facade) {
 
+    private val annotationTargetChecker = AnnotationTargetChecker.instance
+
     override fun visitNamedFunction(function: JetNamedFunction, data: ExpressionTypingContext): JetTypeInfo {
         return visitNamedFunction(function, data, false, null)
     }
@@ -105,6 +107,7 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
 
         ModifiersChecker.create(context.trace, components.additionalCheckerProvider)
                 .checkModifiersForLocalDeclaration(function, functionDescriptor)
+        annotationTargetChecker.checkDeclaration(function, context.trace)
         if (!function.hasBody()) {
             context.trace.report(NON_MEMBER_FUNCTION_NO_BODY.on(function, functionDescriptor))
         }
