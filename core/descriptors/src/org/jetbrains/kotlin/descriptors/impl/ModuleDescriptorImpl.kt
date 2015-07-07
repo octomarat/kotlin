@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.utils.sure
 import java.util.LinkedHashSet
 import kotlin.properties.Delegates
 
-public class ModuleDescriptorImpl(
+public open class ModuleDescriptorImpl(
         moduleName: Name,
         private val storageManager: StorageManager,
         private val moduleParameters: ModuleParameters
