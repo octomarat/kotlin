@@ -27,7 +27,6 @@ public class IntegerValueTypeConstant(
         value: Number,
         parameters: CompileTimeConstant.Parameters
 ) : IntegerValueConstant<Number>(value, parameters) {
-
     override fun isPure() = true
 
     private val typeConstructor = IntegerValueTypeConstructor(value.toLong())

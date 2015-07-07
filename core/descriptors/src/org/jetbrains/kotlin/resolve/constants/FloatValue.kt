@@ -25,8 +25,6 @@ public class FloatValue(
         parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
 ) : CompileTimeConstant<Float>(value, parameters) {
-    override fun isPure() = false
-
     override val type = builtIns.getFloatType()
 
     override fun <R, D> accept(visitor: AnnotationArgumentVisitor<R, D>, data: D) = visitor.visitFloatValue(this, data)

@@ -26,7 +26,6 @@ public class ArrayValue(
         override val type: JetType,
         parameters: CompileTimeConstant.Parameters
 ) : CompileTimeConstant<List<CompileTimeConstant<*>>>(value, parameters) {
-
     public constructor(
             value: List<CompileTimeConstant<*>>,
             type: JetType,
@@ -34,7 +33,6 @@ public class ArrayValue(
     ) : this(value, type, CompileTimeConstant.Parameters.Impl(true, false, usesVariableAsConstant))
 
     override fun canBeUsedInAnnotations() = true
-    override fun isPure() = false
 
     init {
         assert(KotlinBuiltIns.isArray(type) || KotlinBuiltIns.isPrimitiveArray(type)) { "Type should be an array, but was " + type + ": " + value }

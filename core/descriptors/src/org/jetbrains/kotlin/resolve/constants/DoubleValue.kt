@@ -25,9 +25,6 @@ public class DoubleValue(
         parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
 ) : CompileTimeConstant<Double>(value, parameters) {
-
-    override fun isPure() = false
-
     override val type = builtIns.getDoubleType()
 
     override fun <R, D> accept(visitor: AnnotationArgumentVisitor<R, D>, data: D) = visitor.visitDoubleValue(this, data)

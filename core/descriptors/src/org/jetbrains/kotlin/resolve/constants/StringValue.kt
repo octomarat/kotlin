@@ -25,8 +25,6 @@ public class StringValue(
         parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
 ) : CompileTimeConstant<String>(value, parameters) {
-    override fun isPure() = false
-
     override val type = builtIns.getStringType()
 
     override fun <R, D> accept(visitor: AnnotationArgumentVisitor<R, D>, data: D) = visitor.visitStringValue(this, data)

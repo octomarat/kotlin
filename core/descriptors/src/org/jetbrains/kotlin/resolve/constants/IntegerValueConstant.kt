@@ -19,4 +19,6 @@ package org.jetbrains.kotlin.resolve.constants
 public abstract class IntegerValueConstant<T> protected constructor(
         value: T,
         parameters: CompileTimeConstant.Parameters
-) : CompileTimeConstant<T>(value, parameters)
+) : CompileTimeConstant<T>(value, parameters) {
+    public open fun isPure(): Boolean = parameters.isPure
+}

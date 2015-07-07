@@ -26,8 +26,6 @@ public abstract class CompileTimeConstant<T> protected constructor(
 ) {
     public open fun canBeUsedInAnnotations(): Boolean = parameters.canBeUsedInAnnotation
 
-    public open fun isPure(): Boolean = parameters.isPure
-
     public open fun usesVariableAsConstant(): Boolean = parameters.usesVariableAsConstant
 
     public abstract val type: JetType
