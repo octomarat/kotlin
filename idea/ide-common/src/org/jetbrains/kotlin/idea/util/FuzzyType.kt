@@ -28,6 +28,9 @@ import org.jetbrains.kotlin.resolve.calls.inference.ConstraintsUtil
 import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind
+import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
+import org.jetbrains.kotlin.types.typeUtil.makeNullable
+import org.jetbrains.kotlin.types.typeUtil.nullability
 
 fun CallableDescriptor.fuzzyReturnType(): FuzzyType? {
     val returnType = getReturnType() ?: return null
