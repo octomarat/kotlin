@@ -40,7 +40,6 @@ import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant;
-import org.jetbrains.kotlin.resolve.constants.IntegerValueTypeConstant;
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
@@ -393,9 +392,7 @@ public abstract class MemberCodegen<T extends JetElement/* TODO: & JetDeclaratio
 
         //TODO: OPTIMIZATION: don't initialize static final fields
 
-        Object value = initializerValue instanceof IntegerValueTypeConstant
-            ? ((IntegerValueTypeConstant) initializerValue).getValue(propertyDescriptor.getType())
-            : initializerValue.getValue();
+        Object value = initializerValue.getValue(propertyDescriptor.getType());
         JetType jetType = getPropertyOrDelegateType(property, propertyDescriptor);
         Type type = typeMapper.mapType(jetType);
         return !skipDefaultValue(propertyDescriptor, value, type);

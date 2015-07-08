@@ -39,7 +39,7 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
     private val builtIns: KotlinBuiltIns
         get() = module.builtIns
 
-    private val factory = CompileTimeConstantFactory(CompileTimeConstant.Parameters.ThrowException, builtIns)
+    private val factory = CompileTimeConstantFactory(builtIns)
 
     public fun deserializeAnnotation(proto: Annotation, nameResolver: NameResolver): AnnotationDescriptor {
         val annotationClass = resolveClass(nameResolver.getClassId(proto.getId()))
@@ -60,7 +60,7 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
             proto: Argument,
             parameterByName: Map<Name, ValueParameterDescriptor>,
             nameResolver: NameResolver
-    ): Pair<ValueParameterDescriptor, CompileTimeConstant<*>>? {
+    ): Pair<ValueParameterDescriptor, ConstantValue<*>>? {
         val parameter = parameterByName[nameResolver.getName(proto.getNameId())] ?: return null
         return Pair(parameter, resolveValue(parameter.getType(), proto.getValue(), nameResolver))
     }
@@ -69,8 +69,8 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
             expectedType: JetType,
             value: Value,
             nameResolver: NameResolver
-    ): CompileTimeConstant<*> {
-        val result = when (value.getType()) {
+    ): ConstantValue<*> {
+        val result: ConstantValue<*> = when (value.getType()) {
             Type.BYTE -> factory.createByteValue(value.getIntValue().toByte())
             Type.CHAR -> factory.createCharValue(value.getIntValue().toChar())
             Type.SHORT -> factory.createShortValue(value.getIntValue().toShort())
@@ -131,7 +131,7 @@ public class AnnotationDeserializer(private val module: ModuleDescriptor) {
     }
 
     // NOTE: see analogous code in BinaryClassAnnotationAndConstantLoaderImpl
-    private fun resolveEnumValue(enumClassId: ClassId, enumEntryName: Name): CompileTimeConstant<*> {
+    private fun resolveEnumValue(enumClassId: ClassId, enumEntryName: Name): ConstantValue<*> {
         val enumClass = resolveClass(enumClassId)
         if (enumClass.getKind() == ClassKind.ENUM_CLASS) {
             val enumEntry = enumClass.getUnsubstitutedInnerClassesScope().getClassifier(enumEntryName)

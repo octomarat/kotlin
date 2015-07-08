@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.utils.sure
 
 public class EnumValue(
         value: ClassDescriptor
-) : CompileTimeConstant<ClassDescriptor>(value, CompileTimeConstant.Parameters.Impl(true, false, false)) {
+) : ConstantValue<ClassDescriptor>(value) {
 
     override val type: JetType
         get() = value.classObjectType.sure { "Enum entry must have a class object type: " + value }

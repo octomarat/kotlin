@@ -66,6 +66,7 @@ import org.jetbrains.kotlin.resolve.calls.model.*;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
 import org.jetbrains.kotlin.resolve.calls.util.FakeCallableDescriptorForObject;
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant;
+import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.constants.IntegerValueTypeConstant;
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator;
 import org.jetbrains.kotlin.resolve.constants.evaluate.EvaluatePackage;
@@ -1291,20 +1292,19 @@ public class ExpressionCodegen extends JetVisitor<StackValue, StackValue> implem
 
     @Override
     public StackValue visitConstantExpression(@NotNull JetConstantExpression expression, StackValue receiver) {
-        CompileTimeConstant<?> compileTimeValue = getCompileTimeConstant(expression, bindingContext);
+        ConstantValue<?> compileTimeValue = getCompileTimeConstant(expression, bindingContext);
         assert compileTimeValue != null;
         return StackValue.constant(compileTimeValue.getValue(), expressionType(expression));
     }
 
     @Nullable
-    public static CompileTimeConstant getCompileTimeConstant(@NotNull JetExpression expression, @NotNull BindingContext bindingContext) {
+    public static ConstantValue<?> getCompileTimeConstant(@NotNull JetExpression expression, @NotNull BindingContext bindingContext) {
         CompileTimeConstant<?> compileTimeValue = ConstantExpressionEvaluator.getConstant(expression, bindingContext);
-        if (compileTimeValue instanceof IntegerValueTypeConstant) {
-            JetType expectedType = bindingContext.getType(expression);
-            assert expectedType != null : "Expression is not type checked: " + expression.getText();
-            return EvaluatePackage.createCompileTimeConstantWithType((IntegerValueTypeConstant) compileTimeValue, expectedType);
+        if (compileTimeValue == null) {
+            return null;
         }
-        return compileTimeValue;
+        JetType expectedType = bindingContext.getType(expression);
+        return compileTimeValue.toConstantValue(expectedType);
     }
 
     @Override
@@ -3011,7 +3011,7 @@ public class ExpressionCodegen extends JetVisitor<StackValue, StackValue> implem
     }
 
     private boolean isIntZero(JetExpression expr, Type exprType) {
-        CompileTimeConstant<?> exprValue = getCompileTimeConstant(expr, bindingContext);
+        ConstantValue<?> exprValue = getCompileTimeConstant(expr, bindingContext);
         return isIntPrimitive(exprType) && exprValue != null && Integer.valueOf(0).equals(exprValue.getValue());
     }
 

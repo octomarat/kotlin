@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.storage.StorageManager
 
@@ -27,7 +28,7 @@ public class DeserializationComponents(
         public val storageManager: StorageManager,
         public val moduleDescriptor: ModuleDescriptor,
         public val classDataFinder: ClassDataFinder,
-        public val annotationAndConstantLoader: AnnotationAndConstantLoader<AnnotationDescriptor, CompileTimeConstant<*>>,
+        public val annotationAndConstantLoader: AnnotationAndConstantLoader<AnnotationDescriptor, ConstantValue<*>>,
         public val packageFragmentProvider: PackageFragmentProvider,
         public val localClassResolver: LocalClassResolver,
         public val flexibleTypeCapabilitiesDeserializer: FlexibleTypeCapabilitiesDeserializer,

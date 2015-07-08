@@ -90,13 +90,7 @@ public class ConvertToStringTemplateIntention : JetSelfTargetingOffsetIndependen
             is JetConstantExpression -> {
                 val bindingContext = expression.analyze()
                 val constant = ConstantExpressionEvaluator.getConstant(expression, bindingContext)
-                if (constant is IntegerValueTypeConstant) {
-                    val type = bindingContext.getType(expression)!!
-                    constant.getValue(type).toString()
-                }
-                else {
-                    constant?.value.toString()
-                }
+                constant?.getValue(bindingContext.getType(expression)!!).toString()
             }
 
             is JetStringTemplateExpression -> {

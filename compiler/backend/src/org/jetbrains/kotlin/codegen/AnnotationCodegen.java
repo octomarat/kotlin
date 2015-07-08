@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.codegen;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotated;
@@ -172,9 +171,9 @@ public abstract class AnnotationCodegen {
         return !type.isMarkedNullable() && classifier instanceof TypeParameterDescriptor && TypeUtils.hasNullableSuperType(type);
     }
 
-    public void generateAnnotationDefaultValue(@NotNull CompileTimeConstant value, @NotNull JetType expectedType) {
+    public void generateAnnotationDefaultValue(@NotNull ConstantValue<?> value, @NotNull JetType expectedType) {
         AnnotationVisitor visitor = visitAnnotation(null, false);  // Parameters are unimportant
-        genCompileTimeValue(null, value, expectedType, visitor);
+        genCompileTimeValue(null, value, visitor);
         visitor.visitEnd();
     }
 
@@ -197,17 +196,16 @@ public abstract class AnnotationCodegen {
     }
 
     private void genAnnotationArguments(AnnotationDescriptor annotationDescriptor, AnnotationVisitor annotationVisitor) {
-        for (Map.Entry<ValueParameterDescriptor, CompileTimeConstant<?>> entry : annotationDescriptor.getAllValueArguments().entrySet()) {
+        for (Map.Entry<ValueParameterDescriptor, ConstantValue<?>> entry : annotationDescriptor.getAllValueArguments().entrySet()) {
             ValueParameterDescriptor descriptor = entry.getKey();
             String name = descriptor.getName().asString();
-            genCompileTimeValue(name, entry.getValue(), descriptor.getType(), annotationVisitor);
+            genCompileTimeValue(name, entry.getValue(), annotationVisitor);
         }
     }
 
     private void genCompileTimeValue(
             @Nullable final String name,
-            @NotNull CompileTimeConstant<?> value,
-            @NotNull final JetType expectedType,
+            @NotNull ConstantValue<?> value,
             @NotNull final AnnotationVisitor annotationVisitor
     ) {
         AnnotationArgumentVisitor argumentVisitor = new AnnotationArgumentVisitor<Void, Void>() {
@@ -266,8 +264,8 @@ public abstract class AnnotationCodegen {
             @Override
             public Void visitArrayValue(ArrayValue value, Void data) {
                 AnnotationVisitor visitor = annotationVisitor.visitArray(name);
-                for (CompileTimeConstant<?> argument : value.getValue()) {
-                    genCompileTimeValue(null, argument, value.getType(), visitor);
+                for (ConstantValue<?> argument : value.getValue()) {
+                    genCompileTimeValue(null, argument, visitor);
                 }
                 visitor.visitEnd();
                 return null;
@@ -288,14 +286,7 @@ public abstract class AnnotationCodegen {
                 return null;
             }
 
-            @Override
-            public Void visitNumberTypeValue(IntegerValueTypeConstant value, Void data) {
-                Object numberType = value.getValue(expectedType);
-                annotationVisitor.visit(name, numberType);
-                return null;
-            }
-
-            private Void visitSimpleValue(CompileTimeConstant value) {
+            private Void visitSimpleValue(ConstantValue<?> value) {
                 annotationVisitor.visit(name, value.getValue());
                 return null;
             }
@@ -310,7 +301,7 @@ public abstract class AnnotationCodegen {
                 return visitUnsupportedValue(value);
             }
 
-            private Void visitUnsupportedValue(CompileTimeConstant value) {
+            private Void visitUnsupportedValue(ConstantValue<?> value) {
                 throw new IllegalStateException("Don't know how to compile annotation value " + value);
             }
         };
@@ -322,9 +313,9 @@ public abstract class AnnotationCodegen {
     private RetentionPolicy getRetentionPolicy(@NotNull Annotated descriptor) {
         AnnotationDescriptor retentionAnnotation = descriptor.getAnnotations().findAnnotation(new FqName(Retention.class.getName()));
         if (retentionAnnotation != null) {
-            Collection<CompileTimeConstant<?>> valueArguments = retentionAnnotation.getAllValueArguments().values();
+            Collection<ConstantValue<?>> valueArguments = retentionAnnotation.getAllValueArguments().values();
             if (!valueArguments.isEmpty()) {
-                CompileTimeConstant<?> compileTimeConstant = valueArguments.iterator().next();
+                ConstantValue<?> compileTimeConstant = valueArguments.iterator().next();
                 if (compileTimeConstant instanceof EnumValue) {
                     ClassDescriptor enumEntry = ((EnumValue) compileTimeConstant).getValue();
                     JetType classObjectType = getClassObjectType(enumEntry);

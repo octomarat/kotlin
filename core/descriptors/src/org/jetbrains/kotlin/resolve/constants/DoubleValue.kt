@@ -22,9 +22,8 @@ import org.jetbrains.kotlin.types.JetType
 
 public class DoubleValue(
         value: Double,
-        parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
-) : CompileTimeConstant<Double>(value, parameters) {
+) : ConstantValue<Double>(value) {
     override val type = builtIns.getDoubleType()
 
     override fun <R, D> accept(visitor: AnnotationArgumentVisitor<R, D>, data: D) = visitor.visitDoubleValue(this, data)

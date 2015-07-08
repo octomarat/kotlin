@@ -57,6 +57,7 @@ import org.jetbrains.kotlin.resolve.calls.tasks.TracingStrategy;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant;
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstantChecker;
+import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant;
 import org.jetbrains.kotlin.resolve.constants.IntegerValueTypeConstant;
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
@@ -125,7 +126,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
 
         if (!(value instanceof IntegerValueTypeConstant)) {
             CompileTimeConstantChecker compileTimeConstantChecker = context.getCompileTimeConstantChecker();
-            boolean hasError = compileTimeConstantChecker.checkConstantExpressionType(value, expression, context.expectedType);
+            boolean hasError = compileTimeConstantChecker.checkConstantExpressionType((ConstantValueCompileTimeConstant) value, expression, context.expectedType);
             if (hasError) {
                 IElementType elementType = expression.getNode().getElementType();
                 return TypeInfoFactoryPackage.createTypeInfo(getDefaultType(elementType), context);

@@ -84,7 +84,7 @@ public class JsCallChecker : CallChecker {
             return
         }
 
-        val code = evaluationResult.value as String
+        val code = evaluationResult.getValue(stringType) as String
         val errorReporter = JsCodeErrorReporter(argument, code, context.trace)
 
         try {

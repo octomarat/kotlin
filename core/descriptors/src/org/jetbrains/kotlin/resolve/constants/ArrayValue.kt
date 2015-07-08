@@ -22,18 +22,9 @@ import org.jetbrains.kotlin.types.JetType
 import java.util.*
 
 public class ArrayValue(
-        value: List<CompileTimeConstant<*>>,
-        override val type: JetType,
-        parameters: CompileTimeConstant.Parameters
-) : CompileTimeConstant<List<CompileTimeConstant<*>>>(value, parameters) {
-    public constructor(
-            value: List<CompileTimeConstant<*>>,
-            type: JetType,
-            usesVariableAsConstant: Boolean
-    ) : this(value, type, CompileTimeConstant.Parameters.Impl(true, false, usesVariableAsConstant))
-
-    override fun canBeUsedInAnnotations() = true
-
+        value: List<ConstantValue<*>>,
+        override val type: JetType
+) : ConstantValue<List<ConstantValue<*>>>(value) {
     init {
         assert(KotlinBuiltIns.isArray(type) || KotlinBuiltIns.isPrimitiveArray(type)) { "Type should be an array, but was " + type + ": " + value }
     }

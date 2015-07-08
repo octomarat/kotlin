@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.constants.evaluate
 
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.annotation.AbstractAnnotationDescriptorResolveTest
@@ -34,7 +35,7 @@ public abstract class AbstractEvaluateExpressionTest : AbstractAnnotationDescrip
     fun doConstantTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
+            val compileTimeConstant = property.getCompileTimeInitializer()?.toStrictlyTyped(KotlinBuiltIns.getInstance().getStringType())?.constantValue
             if (compileTimeConstant is StringValue) {
                 "\\\"${compileTimeConstant.value}\\\""
             } else {
@@ -47,13 +48,8 @@ public abstract class AbstractEvaluateExpressionTest : AbstractAnnotationDescrip
     fun doIsPureTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
-            if (compileTimeConstant is IntegerValueConstant) {
-                compileTimeConstant.isPure().toString()
-            } else {
-                "null"
-            }
-        }
+            //TODO:
+error("a")        }
     }
 
     // Test directives should look like [// val testedPropertyName: expectedValue]

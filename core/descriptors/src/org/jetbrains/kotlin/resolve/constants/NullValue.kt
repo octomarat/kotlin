@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.types.JetType
 
 public class NullValue(
         builtIns: KotlinBuiltIns
-) : CompileTimeConstant<Void?>(null, CompileTimeConstant.Parameters.Impl(false, false, false)) {
+) : ConstantValue<Void?>(null) {
 
     override val type = builtIns.getNullableNothingType()
 

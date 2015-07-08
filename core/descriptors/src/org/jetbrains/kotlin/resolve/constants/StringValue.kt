@@ -22,9 +22,8 @@ import org.jetbrains.kotlin.types.JetType
 
 public class StringValue(
         value: String,
-        parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
-) : CompileTimeConstant<String>(value, parameters) {
+) : ConstantValue<String>(value) {
     override val type = builtIns.getStringType()
 
     override fun <R, D> accept(visitor: AnnotationArgumentVisitor<R, D>, data: D) = visitor.visitStringValue(this, data)

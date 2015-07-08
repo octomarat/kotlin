@@ -375,7 +375,7 @@ internal class DescriptorRendererImpl(
                 .sort()
     }
 
-    private fun renderConstant(value: CompileTimeConstant<*>): String {
+    private fun renderConstant(value: ConstantValue<*>): String {
         return when (value) {
             is ArrayValue -> value.value.map { renderConstant(it) }.joinToString(", ", "{", "}")
             is AnnotationValue -> renderAnnotation(value.value)
@@ -700,7 +700,7 @@ internal class DescriptorRendererImpl(
 
     private fun renderInitializer(variable: VariableDescriptor, builder: StringBuilder) {
         if (includePropertyConstant) {
-            val initializer = variable.getCompileTimeInitializer()
+            val initializer = variable.getCompileTimeInitializer()?.constantValue
             if (initializer != null) {
                 builder.append(" = ").append(escape(renderConstant(initializer)))
             }

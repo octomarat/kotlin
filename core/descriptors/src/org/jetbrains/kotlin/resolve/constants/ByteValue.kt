@@ -22,9 +22,8 @@ import org.jetbrains.kotlin.types.JetType
 
 public class ByteValue(
         value: Byte,
-        parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
-) : IntegerValueConstant<Byte>(value, parameters) {
+) : ConstantValue<Byte>(value) {
 
     override val type = builtIns.getByteType()
 

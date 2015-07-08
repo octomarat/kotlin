@@ -22,9 +22,8 @@ import org.jetbrains.kotlin.types.JetType
 
 public class IntValue(
         value: Int,
-        parameters: CompileTimeConstant.Parameters,
         builtIns: KotlinBuiltIns
-) : IntegerValueConstant<Int>(value, parameters) {
+) : ConstantValue<Int>(value) {
 
     override val type = builtIns.getIntType()
 
