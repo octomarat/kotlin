@@ -382,6 +382,88 @@ public fun <T, R, V> Sequence<T>.merge(sequence: Sequence<R>, transform: (T, R) 
 }
 
 /**
+ * Returns a list containing all elements of the original collection except the elements of the given [array].
+ */
+public fun <T> Iterable<T>.minus(array: Array<out T>): List<T> {
+    val other = array.toHashSet()
+    return this.filterNot { it in other }
+}
+
+/**
+ * Returns a sequence containing all elements of original sequence except the elements of the given [array].
+ */
+public fun <T> Sequence<T>.minus(array: Array<out T>): Sequence<T> {
+    val other = array.toHashSet()
+    return this.filterNot { it in other }
+}
+
+/**
+ * Returns a set containing all elements of the original set except the elements of the given [array].
+ */
+public fun <T> Set<T>.minus(array: Array<out T>): Set<T> {
+    val result = LinkedHashSet<T>(this)
+    result.removeAll(array)
+    return result
+}
+
+/**
+ * Returns a list containing all elements of the original collection except the elements of the given [collection].
+ */
+public fun <T> Iterable<T>.minus(collection: Iterable<T>): List<T> {
+    val other = if (collection is Set) collection else collection.toHashSet()
+    return this.filterNot { it in other }
+}
+
+/**
+ * Returns a sequence containing all elements of original sequence except the elements of the given [collection].
+ */
+public fun <T> Sequence<T>.minus(collection: Iterable<T>): Sequence<T> {
+    val other = collection.toHashSet()
+    return this.filterNot { it in other }
+}
+
+/**
+ * Returns a set containing all elements of the original set except the elements of the given [collection].
+ */
+public fun <T> Set<T>.minus(collection: Iterable<T>): Set<T> {
+    if (collection is Set)
+        return this.filterNotTo(LinkedHashSet<T>()) { it in collection }
+    val result = LinkedHashSet<T>(this)
+    result.removeAll(collection)
+    return result
+}
+
+/**
+ * Returns a list containing all elements of the original collection without the first occurrence of the given [element].
+ */
+public fun <T> Iterable<T>.minus(element: T): List<T> {
+    val result = ArrayList<T>(collectionSizeOrDefault(10))
+    var removed = false
+    return this.filterTo(result) { if (!removed && it == element) { removed = true; false } else true }
+}
+
+/**
+ * Returns a sequence containing all elements of the original sequence without the first occurrence of the given [element].
+ */
+public fun <T> Sequence<T>.minus(element: T): Sequence<T> {
+    return object: Sequence<T> {
+        override fun iterator(): Iterator<T> {
+            var removed = false
+            return this@minus.filter { if (!removed && it == element) { removed = true; false } else true }.iterator()
+        }
+    }
+}
+
+/**
+ * Returns a set containing all elements of the original set except the given [element].
+ */
+public fun <T> Set<T>.minus(element: T): Set<T> {
+    val result = LinkedHashSet<T>(mapCapacity(size()))
+    var removed = false
+    return this.filterTo(result) { if (!removed && it == element) { removed = true; false } else true }
+}
+
+/**
  * Splits original collection into pair of collections,
  * where *first* collection contains elements for which [predicate] yielded `true`,
  * while *second* collection contains elements for which [predicate] yielded `false`.

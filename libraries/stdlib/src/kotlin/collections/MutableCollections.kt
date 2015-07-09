@@ -23,6 +23,26 @@ public fun <T> MutableCollection<in T>.plusAssign(array: Array<T>) {
     this.addAll(array)
 }
 
+/**
+ * Defines operator -= for mutable collections to removing the specified [element] to this collection.
+ */
+public fun <T> MutableCollection<in T>.minusAssign(element: T) {
+    this.remove(element)
+}
+
+/**
+ * Defines operator -= for mutable collections to removing all elements contained in the given [collection] to this collection.
+ */
+public fun <T> MutableCollection<in T>.minusAssign(collection: Iterable<T>) {
+    this.removeAll(collection)
+}
+
+/**
+ * Defines operator -= for mutable collections to removing all elements contained in the given [array] to this collection.
+ */
+public fun <T> MutableCollection<in T>.minusAssign(array: Array<T>) {
+    this.removeAll(array)
+}
 
 /**
  * Adds all elements of the given [iterable] to this [MutableCollection].
