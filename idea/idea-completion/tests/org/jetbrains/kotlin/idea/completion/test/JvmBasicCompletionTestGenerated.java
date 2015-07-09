@@ -1089,6 +1089,12 @@ public class JvmBasicCompletionTestGenerated extends AbstractJvmBasicCompletionT
                 doTest(fileName);
             }
 
+            @TestMetadata("DoNotHideGetterWhenExtensionCannotBeUsed.kt")
+            public void testDoNotHideGetterWhenExtensionCannotBeUsed() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/extensions/DoNotHideGetterWhenExtensionCannotBeUsed.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ExtensionInExtendedClass.kt")
             public void testExtensionInExtendedClass() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/extensions/ExtensionInExtendedClass.kt");
@@ -1188,6 +1194,18 @@ public class JvmBasicCompletionTestGenerated extends AbstractJvmBasicCompletionT
             @TestMetadata("NoMemberExtensionsFromCompanionObject.kt")
             public void testNoMemberExtensionsFromCompanionObject() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/extensions/NoMemberExtensionsFromCompanionObject.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ShowGetMethodWhenNothingElseMatch.kt")
+            public void testShowGetMethodWhenNothingElseMatch() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/extensions/ShowGetMethodWhenNothingElseMatch.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ShowGetSetOnSecondCompletion.kt")
+            public void testShowGetSetOnSecondCompletion() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/extensions/ShowGetSetOnSecondCompletion.kt");
                 doTest(fileName);
             }
 
