@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
 import org.jetbrains.kotlin.idea.JetBundle;
 import org.jetbrains.kotlin.idea.core.quickfix.QuickFixUtil;
+import org.jetbrains.kotlin.idea.references.ReferencesPackage;
 import org.jetbrains.kotlin.psi.*;
 
 import static org.jetbrains.kotlin.lexer.JetTokens.ANNOTATION_KEYWORD;
@@ -58,13 +59,11 @@ public class MakeClassAnAnnotationClassFix extends JetIntentionAction<JetAnnotat
             return false;
         }
 
-        PsiReference reference = referenceExpression.getReference();
-        if (reference != null) {
-            PsiElement target = reference.resolve();
-            if (target instanceof JetClass) {
-                annotationClass = (JetClass) target;
-                return QuickFixUtil.canModifyElement(annotationClass);
-            }
+        PsiReference reference = ReferencesPackage.getMainReference(referenceExpression);
+        PsiElement target = reference.resolve();
+        if (target instanceof JetClass) {
+            annotationClass = (JetClass) target;
+            return QuickFixUtil.canModifyElement(annotationClass);
         }
 
         return false;
