@@ -78,9 +78,9 @@ class LazyJavaClassDescriptor(
     override fun getTypeConstructor(): TypeConstructor = typeConstructor()
 
     private val scopeForMemberLookup = LazyJavaClassMemberScope(c, this, jClass)
-    override fun getScopeForMemberLookup() = scopeForMemberLookup
+    override fun getUnsubstitutedMemberScope() = scopeForMemberLookup
 
-    private val innerClassesScope = InnerClassesScopeWrapper(getScopeForMemberLookup())
+    private val innerClassesScope = InnerClassesScopeWrapper(getUnsubstitutedMemberScope())
     override fun getUnsubstitutedInnerClassesScope(): JetScope = innerClassesScope
 
     private val staticScope = LazyJavaStaticClassScope(c, jClass, this)

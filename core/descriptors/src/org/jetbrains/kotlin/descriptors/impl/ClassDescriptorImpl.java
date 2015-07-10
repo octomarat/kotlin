@@ -89,7 +89,7 @@ public class ClassDescriptorImpl extends ClassDescriptorBase {
 
     @NotNull
     @Override
-    protected JetScope getScopeForMemberLookup() {
+    public JetScope getUnsubstitutedMemberScope() {
         return scopeForMemberLookup;
     }
 

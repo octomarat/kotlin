@@ -256,7 +256,7 @@ public class MutableClassDescriptor extends ClassDescriptorBase implements Class
 
     @Override
     @NotNull
-    public JetScope getScopeForMemberLookup() {
+    public JetScope getUnsubstitutedMemberScope() {
         return scopeForMemberLookup;
     }
 
