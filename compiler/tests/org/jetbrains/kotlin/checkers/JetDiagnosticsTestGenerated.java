@@ -13710,6 +13710,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("IsNaming.kt")
+            public void testIsNaming() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/syntheticExtensions/IsNaming.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("OnlyPublic.kt")
             public void testOnlyPublic() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/syntheticExtensions/OnlyPublic.kt");
