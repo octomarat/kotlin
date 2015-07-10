@@ -95,7 +95,7 @@ class CompositeAnnotations(
     override fun getAnnotationsWithApplicability() = delegates.flatMap { it.getAnnotationsWithApplicability() }
 
     override fun getAllAnnotations(): List<Pair<AnnotationDescriptor, AnnotationApplicability?>> {
-        return delegates.flatMap { getAllAnnotations() }
+        return delegates.flatMap { it.getAllAnnotations() }
     }
 
     override fun iterator() = delegates.asSequence().flatMap { it.asSequence() }.iterator()
