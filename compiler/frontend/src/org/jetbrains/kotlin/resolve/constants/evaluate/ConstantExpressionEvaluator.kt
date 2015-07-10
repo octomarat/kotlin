@@ -84,7 +84,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         return null
     }
 
-    private val stringExpressionEvaluator = object : JetVisitor<StringValue, Nothing>() {
+    private val stringExpressionEvaluator = object : JetVisitor<StringValue, Nothing?>() {
         fun evaluate(entry: JetStringTemplateEntry): StringValue? {
             return entry.accept(this, null)
         }
