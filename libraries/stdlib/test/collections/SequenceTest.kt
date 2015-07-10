@@ -162,6 +162,39 @@ public class SequenceTest {
     }
 
 
+    test fun minusElement() {
+        val a = sequenceOf("foo", "bar", "bar")
+        val b: Sequence<String> = a - "bar" - "zoo"
+        assertEquals(listOf("foo", "bar"), b.toList())
+    }
+
+    test fun minusCollection() {
+        val a = sequenceOf("foo", "bar", "bar")
+        val b: Sequence<String> = a - listOf("bar", "zoo")
+        assertEquals(listOf("foo"), b.toList())
+    }
+
+    test fun minusArray() {
+        val a = sequenceOf("foo", "bar", "bar")
+        val b: Sequence<String> = a - arrayOf("bar", "zoo")
+        assertEquals(listOf("foo"), b.toList())
+    }
+
+    test fun minusAssign() {
+        // lets use a mutable variable of readonly list
+        val data = sequenceOf("cheese", "foo", "beer", "cheese", "wine")
+        var l = data
+        l -= "cheese"
+        assertEquals(listOf("foo", "beer", "cheese", "wine"), l.toList())
+        l = data
+        l -= listOf("cheese", "beer")
+        assertEquals(listOf("foo", "wine"), l.toList())
+        l -= arrayOf("wine", "bar")
+        assertEquals(listOf("foo"), l.toList())
+    }
+
+
+
     test fun iterationOverSequence() {
         var s = ""
         for (i in sequenceOf(0, 1, 2, 3, 4, 5)) {
