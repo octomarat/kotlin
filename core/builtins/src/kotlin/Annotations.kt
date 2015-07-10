@@ -17,6 +17,7 @@
 package kotlin
 
 import kotlin.annotation.*
+import kotlin.annotation.AnnotationTarget.*
 
 /**
  * Marks the annotated class as a data class. The compiler automatically generates
@@ -24,7 +25,7 @@ import kotlin.annotation.*
  * See [the Kotlin language documentation](http://kotlinlang.org/docs/reference/data-classes.html)
  * for more information.
  */
-target(AnnotationTarget.CLASSIFIER)
+target(CLASSIFIER)
 public annotation class data
 
 /**
@@ -33,10 +34,8 @@ public annotation class data
  * @property replaceWith if present, specifies a code fragment which should be used as a replacement for
  *     the deprecated API usage.
  */
-target(AnnotationTarget.CLASSIFIER, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY,
-       AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CONSTRUCTOR,
-       AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.PROPERTY_GETTER,
-       AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.FIELD, AnnotationTarget.VALUE_PARAMETER)
+target(CLASSIFIER, FUNCTION, PROPERTY, ANNOTATION_CLASS, CONSTRUCTOR, PROPERTY_SETTER, PROPERTY_GETTER,
+       LOCAL_VARIABLE, FIELD, VALUE_PARAMETER)
 public annotation class deprecated(val value: String, val replaceWith: ReplaceWith = ReplaceWith(""))
 
 /**
@@ -57,18 +56,15 @@ public annotation class ReplaceWith(val expression: String, vararg val imports: 
 /**
  * Signifies that the annotated functional type represents an extension function.
  */
-target(AnnotationTarget.TYPE)
+target(TYPE)
 public annotation class extension
 
 /**
  * Suppresses the given compilation warnings in the annotated element.
  * @property names names of the compiler diagnostics to suppress.
  */
-target(AnnotationTarget.CLASSIFIER, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.PROPERTY,
-       AnnotationTarget.FIELD, AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.VALUE_PARAMETER,
-       AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER,
-       AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.TYPE, AnnotationTarget.EXPRESSION,
-       AnnotationTarget.FILE)
+target(CLASSIFIER, ANNOTATION_CLASS, PROPERTY, FIELD, LOCAL_VARIABLE, VALUE_PARAMETER,
+       CONSTRUCTOR, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, TYPE, EXPRESSION, FILE)
 public annotation class suppress(vararg val names: String)
 
 /**
@@ -77,5 +73,5 @@ public annotation class suppress(vararg val names: String)
  * growing the stack depth. Tail call optimization is currently only supported by the JVM
  * backend.
  */
-target(AnnotationTarget.FUNCTION)
+target(FUNCTION)
 public annotation class tailRecursive

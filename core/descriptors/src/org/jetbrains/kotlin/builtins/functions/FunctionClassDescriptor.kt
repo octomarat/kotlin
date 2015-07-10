@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.builtins.functions
 import org.jetbrains.kotlin.builtins.KOTLIN_REFLECT_FQ_NAME
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns.ANNOTATION_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor.Kind
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
@@ -55,7 +54,6 @@ public class FunctionClassDescriptor(
 
     public enum class Kind(val packageFqName: FqName, val classNamePrefix: String) {
         Function(BUILT_INS_PACKAGE_FQ_NAME, "Function"),
-        AFunction(ANNOTATION_PACKAGE_FQ_NAME, "AFunction"),
         KFunction(KOTLIN_REFLECT_FQ_NAME, "KFunction"),
         KMemberFunction(KOTLIN_REFLECT_FQ_NAME, "KMemberFunction"),
         KExtensionFunction(KOTLIN_REFLECT_FQ_NAME, "KExtensionFunction");
@@ -68,12 +66,10 @@ public class FunctionClassDescriptor(
 
     public object Kinds {
         val Functions = EnumSet.of(Kind.Function)
-        val AFunctions = EnumSet.of(Kind.AFunction)
         val KFunctions = EnumSet.complementOf(Functions)
 
         fun byPackage(fqName: FqName) = when (fqName) {
             BUILT_INS_PACKAGE_FQ_NAME -> Functions
-            ANNOTATION_PACKAGE_FQ_NAME -> AFunctions
             KOTLIN_REFLECT_FQ_NAME -> KFunctions
             else -> error(fqName)
         }
