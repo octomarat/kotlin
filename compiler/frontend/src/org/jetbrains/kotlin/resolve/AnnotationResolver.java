@@ -143,8 +143,7 @@ public class AnnotationResolver {
             boolean shouldResolveArguments
     ) {
         if (annotationEntryElements.isEmpty()) return Annotations.EMPTY;
-        List<AnnotationDescriptor> result = Lists.newArrayList();
-        List<AnnotationWithApplicability> annotationsWithApplicability = Lists.newArrayList();
+        List<kotlin.Pair<AnnotationDescriptor, AnnotationApplicability>> result = Lists.newArrayList();
         for (JetAnnotationEntry entryElement : annotationEntryElements) {
             AnnotationDescriptor descriptor = trace.get(BindingContext.ANNOTATION, entryElement);
             if (descriptor == null) {
@@ -156,13 +155,13 @@ public class AnnotationResolver {
 
             JetAnnotationApplicability applicability = entryElement.getApplicability();
             if (applicability != null) {
-                annotationsWithApplicability.add(new AnnotationWithApplicability(descriptor, applicability.getAnnotationApplicability()));
+                result.add(new kotlin.Pair<AnnotationDescriptor, AnnotationApplicability>(descriptor, applicability.getAnnotationApplicability()));
             }
             else {
-                result.add(descriptor);
+                result.add(new kotlin.Pair<AnnotationDescriptor, AnnotationApplicability>(descriptor, null));
             }
         }
-        return new AnnotationsImpl(result, annotationsWithApplicability);
+        return AnnotationsImpl.create(result);
     }
 
     @NotNull

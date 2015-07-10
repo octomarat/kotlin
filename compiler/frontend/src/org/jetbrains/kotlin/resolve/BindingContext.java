@@ -26,6 +26,7 @@ import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.kotlin.cfg.TailRecursionKind;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationWithApplicability;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.FqNameUnsafe;
 import org.jetbrains.kotlin.psi.*;
@@ -90,6 +91,7 @@ public interface BindingContext {
     WritableSlice<AnnotationDescriptor, JetAnnotationEntry> ANNOTATION_DESCRIPTOR_TO_PSI_ELEMENT = Slices.createSimpleSlice();
     WritableSlice<JetAnnotationEntry, AnnotationDescriptor> ANNOTATION =
             Slices.<JetAnnotationEntry, AnnotationDescriptor>sliceBuilder().setOpposite(ANNOTATION_DESCRIPTOR_TO_PSI_ELEMENT).build();
+    WritableSlice<JetAnnotationEntry, AnnotationWithApplicability> ANNOTATION_WITH_APPLICABILITY = Slices.createSimpleSlice();
 
     WritableSlice<JetExpression, CompileTimeConstant<?>> COMPILE_TIME_VALUE = Slices.createSimpleSlice();
 

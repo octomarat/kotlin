@@ -41,6 +41,8 @@ class DeserializedAnnotations(
 
     override fun getAnnotationsWithApplicability() = emptyList<AnnotationWithApplicability>()
 
+    override fun getAllAnnotations() = map { it to null }
+
     override fun findExternalAnnotation(fqName: FqName) = null
 
     override fun iterator(): Iterator<AnnotationDescriptor> = annotations().iterator()
