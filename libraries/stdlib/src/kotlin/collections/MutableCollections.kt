@@ -24,6 +24,13 @@ public fun <T> MutableCollection<in T>.plusAssign(array: Array<T>) {
 }
 
 /**
+ * Defines operator += for mutable collections to adding all elements of the given [sequence] to this collection.
+ */
+public fun <T> MutableCollection<in T>.plusAssign(sequence: Sequence<T>) {
+    this.addAll(sequence)
+}
+
+/**
  * Defines operator -= for mutable collections to removing the specified [element] to this collection.
  */
 public fun <T> MutableCollection<in T>.minusAssign(element: T) {
