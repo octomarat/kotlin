@@ -48,8 +48,6 @@ public class DeclarationsChecker {
     private BindingTrace trace;
     private ModifiersChecker modifiersChecker;
     private DescriptorResolver descriptorResolver;
-    @NotNull
-    private final AnnotationTargetChecker annotationTargetChecker = AnnotationTargetChecker.instance;
 
     @Inject
     public void setTrace(@NotNull BindingTrace trace) {
@@ -69,7 +67,7 @@ public class DeclarationsChecker {
     public void process(@NotNull BodiesResolveContext bodiesResolveContext) {
         for (JetFile file : bodiesResolveContext.getFiles()) {
             checkModifiersAndAnnotationsInPackageDirective(file);
-            annotationTargetChecker.checkFile(file, trace);
+            AnnotationTargetChecker.INSTANCE$.check(file, trace);
         }
 
         Map<JetClassOrObject, ClassDescriptorWithResolutionScopes> classes = bodiesResolveContext.getDeclaredClasses();
@@ -93,7 +91,7 @@ public class DeclarationsChecker {
             checkPrimaryConstructor(classOrObject, classDescriptor);
 
             modifiersChecker.checkModifiersForDeclaration(classOrObject, classDescriptor);
-            annotationTargetChecker.checkDeclaration(classOrObject, trace);
+            AnnotationTargetChecker.INSTANCE$.check(classOrObject, trace);
         }
 
         Map<JetNamedFunction, SimpleFunctionDescriptor> functions = bodiesResolveContext.getFunctions();
@@ -103,7 +101,7 @@ public class DeclarationsChecker {
 
             checkFunction(function, functionDescriptor);
             modifiersChecker.checkModifiersForDeclaration(function, functionDescriptor);
-            annotationTargetChecker.checkDeclaration(function, trace);
+            AnnotationTargetChecker.INSTANCE$.check(function, trace);
         }
 
         Map<JetProperty, PropertyDescriptor> properties = bodiesResolveContext.getProperties();
@@ -127,7 +125,7 @@ public class DeclarationsChecker {
         modifiersChecker.reportIllegalModalityModifiers(declaration);
         reportErrorIfHasIllegalModifier(declaration);
         modifiersChecker.checkModifiersForDeclaration(declaration, constructorDescriptor);
-        annotationTargetChecker.checkDeclaration(declaration, trace);
+        AnnotationTargetChecker.INSTANCE$.check(declaration, trace);
     }
 
     private void reportErrorIfHasIllegalModifier(JetModifierListOwner declaration) {
@@ -152,7 +150,7 @@ public class DeclarationsChecker {
                 }
             }
         }
-        annotationTargetChecker.checkPackageDirective(packageDirective, trace);
+        AnnotationTargetChecker.INSTANCE$.check(packageDirective, trace);
 
         ModifiersChecker.reportIllegalModifiers(modifierList, Arrays.asList(JetTokens.MODIFIER_KEYWORDS_ARRAY), trace);
     }
@@ -309,7 +307,7 @@ public class DeclarationsChecker {
             if (typeParameter != null) {
                 DescriptorResolver.checkConflictingUpperBounds(trace, typeParameter, jetTypeParameter);
             }
-            annotationTargetChecker.checkTypeParameter(jetTypeParameter, trace);
+            AnnotationTargetChecker.INSTANCE$.check(jetTypeParameter, trace);
         }
     }
 
@@ -376,7 +374,7 @@ public class DeclarationsChecker {
         checkPropertyInitializer(property, propertyDescriptor);
         checkAccessors(property, propertyDescriptor);
         checkDeclaredTypeInPublicMember(property, propertyDescriptor);
-        annotationTargetChecker.checkDeclaration(property, trace);
+        AnnotationTargetChecker.INSTANCE$.check(property, trace);
     }
 
     private void checkDeclaredTypeInPublicMember(JetNamedDeclaration member, CallableMemberDescriptor memberDescriptor) {
@@ -534,7 +532,7 @@ public class DeclarationsChecker {
             assert propertyAccessorDescriptor != null : "No property accessor descriptor for " + property.getText();
             modifiersChecker.checkModifiersForDeclaration(accessor, propertyAccessorDescriptor);
             modifiersChecker.reportIllegalModalityModifiers(accessor);
-            annotationTargetChecker.checkDeclaration(accessor, trace);
+            AnnotationTargetChecker.INSTANCE$.check(accessor, trace);
         }
         JetPropertyAccessor getter = property.getGetter();
         PropertyGetterDescriptor getterDescriptor = propertyDescriptor.getGetter();

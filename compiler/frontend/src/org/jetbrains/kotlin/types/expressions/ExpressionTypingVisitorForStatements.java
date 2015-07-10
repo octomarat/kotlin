@@ -62,7 +62,6 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
     private final ControlStructureTypingVisitor controlStructures;
     private final PatternMatchingTypingVisitor patterns;
     private final FunctionsTypingVisitor functions;
-    private final AnnotationTargetChecker annotationTargetChecker = AnnotationTargetChecker.instance;
 
     public ExpressionTypingVisitorForStatements(
             @NotNull ExpressionTypingInternals facade,
@@ -165,7 +164,7 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
 
         scope.addVariableDescriptor(propertyDescriptor);
         ModifiersChecker.create(context.trace, components.additionalCheckerProvider).checkModifiersForLocalDeclaration(property, propertyDescriptor);
-        annotationTargetChecker.checkDeclaration(property, context.trace);
+        AnnotationTargetChecker.INSTANCE$.check(property, context.trace);
         return typeInfo.replaceType(DataFlowUtils.checkStatementType(property, context));
     }
 

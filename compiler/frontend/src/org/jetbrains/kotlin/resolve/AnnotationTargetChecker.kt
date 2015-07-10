@@ -17,102 +17,100 @@
 package org.jetbrains.kotlin.resolve
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getAnnotationEntries
 import org.jetbrains.kotlin.resolve.constants.ArrayValue
+import org.jetbrains.kotlin.resolve.constants.EnumValue
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
+import java.util.*
 
-public class AnnotationTargetChecker private constructor() {
+public object AnnotationTargetChecker {
 
-    private val DEFAULT_TARGETS = listOf("PACKAGE", "CLASSIFIER", "ANNOTATION_CLASS", "FIELD", "LOCAL_VARIABLE", "PROPERTY",
-                                         "VALUE_PARAMETER", "CONSTRUCTOR", "FUNCTION", "PROPERTY_GETTER", "PROPERTY_SETTER")
+    // NOTE: this enum must have the same entries with kotlin.annotation.AnnotationTarget
+    public enum class Target(val description: String, val isDefault: Boolean = true) {
+        PACKAGE("package"),
+        CLASSIFIER("classifier"),
+        ANNOTATION_CLASS("annotation class"),
+        TYPE_PARAMETER("type parameter", false),
+        PROPERTY("property"),
+        FIELD("field"),
+        LOCAL_VARIABLE("local variable"),
+        VALUE_PARAMETER("value parameter"),
+        CONSTRUCTOR("constructor"),
+        FUNCTION("function"),
+        PROPERTY_GETTER("getter"),
+        PROPERTY_SETTER("setter"),
+        TYPE("type usage", false),
+        EXPRESSION("expression", false),
+        FILE("file", false)
+    }
 
+    private val DEFAULT_TARGET_LIST = Target.values().filter { it.isDefault }.map { it.name() }
 
-    public fun checkDeclaration(declaration: JetDeclaration, trace: BindingTrace) {
-        val actualTarget = getActualTarget(declaration)
-        for (entry in declaration.getAnnotationEntries()) {
-            checkAnnotationEntry(entry, actualTarget, trace)
+    public fun check(annotated: JetAnnotated, trace: BindingTrace) {
+        if (annotated is JetTypeParameter) return // TODO: support type parameter annotations
+        val actualTargets = getActualTargetList(annotated)
+        for (entry in annotated.getAnnotationEntries()) {
+            checkAnnotationEntry(entry, actualTargets, trace)
         }
-        if (declaration is JetCallableDeclaration) {
-            declaration.getTypeReference()?.let { checkTypeReference(it, trace) }
+        if (annotated is JetCallableDeclaration) {
+            annotated.getTypeReference()?.let { check(it, trace) }
         }
-        if (declaration is JetFunction) {
-            for (parameter in declaration.getValueParameters()) {
-                checkDeclaration(parameter, trace)
+        if (annotated is JetFunction) {
+            for (parameter in annotated.getValueParameters()) {
+                check(parameter, trace)
             }
         }
     }
 
     public fun checkExpression(expression: JetExpression, trace: BindingTrace) {
         for (entry in expression.getAnnotationEntries()) {
-            checkAnnotationEntry(entry, "EXPRESSION", trace)
+            checkAnnotationEntry(entry, listOf(Target.EXPRESSION), trace)
         }
     }
 
-    public fun checkPackageDirective(directive: JetPackageDirective, trace: BindingTrace) {
-        for (entry in directive.getAnnotationEntries()) {
-            checkAnnotationEntry(entry, "PACKAGE", trace)
-        }
+    private fun possibleTargetList(entry: JetAnnotationEntry, trace: BindingTrace): List<String> {
+        val descriptor = trace.get(BindingContext.ANNOTATION, entry) ?: return DEFAULT_TARGET_LIST
+        val classDescriptor = TypeUtils.getClassDescriptor(descriptor.getType()) ?: return DEFAULT_TARGET_LIST
+        val targetEntryDescriptor = classDescriptor.getAnnotations().findAnnotation(KotlinBuiltIns.FQ_NAMES.target)
+                                    ?: return DEFAULT_TARGET_LIST
+        val valueArguments = targetEntryDescriptor.getAllValueArguments()
+        val valueArgument = valueArguments.entrySet().firstOrNull()?.getValue() as? ArrayValue ?: return DEFAULT_TARGET_LIST
+        return valueArgument.getValue().filter { it is EnumValue }.map { (it.getValue() as ClassDescriptor).getName().asString() }
     }
 
-    public fun checkTypeParameter(typeParameter: JetTypeParameter, trace: BindingTrace) {
-        // TODO: unsupported yet
-//        for (entry in typeParameter.getAnnotationEntries()) {
-//            checkAnnotationEntry(entry, "TYPE_PARAMETER", trace)
-//        }
+    private fun checkAnnotationEntry(entry: JetAnnotationEntry, actualTargets: List<Target>, trace: BindingTrace) {
+        val possibleTargets = possibleTargetList(entry, trace)
+        for (actualTarget in actualTargets) {
+            if (actualTarget.name() in possibleTargets) return
+        }
+        trace.report(Errors.WRONG_ANNOTATION_TARGET.on(entry, actualTargets.firstOrNull()?.description ?: "unidentified target"))
     }
 
-    public fun checkTypeReference(typeReference: JetTypeReference, trace: BindingTrace) {
-        for (entry in typeReference.getAnnotationEntries()) {
-            checkAnnotationEntry(entry, "TYPE", trace)
+    private fun getActualTargetList(annotated: JetAnnotated): List<Target> {
+        if (annotated is JetClassOrObject) {
+            if (annotated is JetEnumEntry) return listOf(Target.PROPERTY, Target.FIELD)
+            return if (annotated.isAnnotation()) listOf(Target.ANNOTATION_CLASS, Target.CLASSIFIER) else listOf(Target.CLASSIFIER)
         }
-    }
-
-    public fun checkFile(file: JetFile, trace: BindingTrace) {
-        for (entry in file.getAnnotationEntries()) {
-            checkAnnotationEntry(entry, "FILE", trace)
+        if (annotated is JetProperty) {
+            return if (annotated.isLocal()) listOf(Target.LOCAL_VARIABLE) else listOf(Target.PROPERTY, Target.FIELD)
         }
-    }
-
-    private fun checkAnnotationEntry(entry: JetAnnotationEntry, actualTarget: String, trace: BindingTrace) {
-        val descriptor = trace.get(BindingContext.ANNOTATION, entry)
-        val type = descriptor?.getType()
-        val classDescriptor = type?.let { TypeUtils.getClassDescriptor(it) }
-        val targetEntryDescriptor = classDescriptor?.getAnnotations()?.findAnnotation(KotlinBuiltIns.FQ_NAMES.target)
-        val valueArguments = targetEntryDescriptor?.getAllValueArguments()
-        val valueArgument = if (valueArguments?.isEmpty() == false) valueArguments!!.iterator().next().getValue() as? ArrayValue else null
-        val possibleTargets = valueArgument?.getValue()?.map {
-            val target = it.toString()
-            target.substring(target.lastIndexOf('.') + 1)
-        } ?: DEFAULT_TARGETS
-        if (!possibleTargets.contains(actualTarget)) {
-            trace.report(Errors.WRONG_ANNOTATION_TARGET.on(entry, actualTarget))
+        if (annotated is JetParameter) {
+            return if (annotated.hasValOrVar()) listOf(Target.PROPERTY, Target.FIELD) else listOf(Target.VALUE_PARAMETER)
         }
-    }
-
-    private fun getActualTarget(declaration: JetDeclaration): String {
-        if (declaration is JetClassOrObject) {
-            return if (declaration.isAnnotation()) "ANNOTATION_CLASS" else "CLASSIFIER"
+        if (annotated is JetConstructor<*>) return listOf(Target.CONSTRUCTOR)
+        if (annotated is JetFunction) return listOf(Target.FUNCTION)
+        if (annotated is JetPropertyAccessor) {
+            return if (annotated.isGetter()) listOf(Target.PROPERTY_GETTER) else listOf(Target.PROPERTY_SETTER)
         }
-        if (declaration is JetProperty) {
-            return if (declaration.isLocal()) "LOCAL_VARIABLE" else "PROPERTY"
-        }
-        if (declaration is JetParameter) {
-            return if (declaration.hasValOrVar()) "PROPERTY" else "VALUE_PARAMETER"
-        }
-        if (declaration is JetConstructor<*>) return "CONSTRUCTOR"
-        if (declaration is JetFunction) return "FUNCTION"
-        if (declaration is JetPropertyAccessor) {
-            return if (declaration.isGetter()) "PROPERTY_GETTER" else "PROPERTY_SETTER"
-        }
-        // TODO: other types
-        return "XXX"
-    }
-
-    companion object {
-        public val instance: AnnotationTargetChecker = AnnotationTargetChecker()
+        if (annotated is JetPackageDirective) return listOf(Target.PACKAGE)
+        if (annotated is JetTypeReference) return listOf(Target.TYPE)
+        if (annotated is JetFile) return listOf(Target.FILE)
+        if (annotated is JetTypeParameter) return listOf(Target.TYPE_PARAMETER)
+        return listOf()
     }
 }

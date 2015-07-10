@@ -8,8 +8,8 @@ target(AnnotationTarget.PROPERTY) annotation class base
 }
 
 <!WRONG_ANNOTATION_TARGET!>base<!> enum class My {
-    <!WRONG_ANNOTATION_TARGET!>@base<!> FIRST,
-    <!WRONG_ANNOTATION_TARGET!>@base<!> SECOND
+    @base FIRST,
+    @base SECOND
 }
 
 <!WRONG_ANNOTATION_TARGET!>base<!> fun foo(<!WRONG_ANNOTATION_TARGET!>base<!> y: <!WRONG_ANNOTATION_TARGET!>@base<!> Int): Int {

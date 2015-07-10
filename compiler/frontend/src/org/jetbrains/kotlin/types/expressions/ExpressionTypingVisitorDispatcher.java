@@ -41,8 +41,6 @@ import static org.jetbrains.kotlin.resolve.bindingContextUtil.BindingContextUtil
 
 public class ExpressionTypingVisitorDispatcher extends JetVisitor<JetTypeInfo, ExpressionTypingContext> implements ExpressionTypingInternals {
 
-    private static final AnnotationTargetChecker annotationTargetChecker = AnnotationTargetChecker.instance;
-
     public static final PerformanceCounter typeInfoPerfCounter = PerformanceCounter.Companion.create("Type info", true);
 
     public interface StatementVisitorProvider {
@@ -146,7 +144,7 @@ public class ExpressionTypingVisitorDispatcher extends JetVisitor<JetTypeInfo, E
     @Override
     @NotNull
     public final JetTypeInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context) {
-        annotationTargetChecker.checkExpression(expression, context.trace);
+        AnnotationTargetChecker.INSTANCE$.checkExpression(expression, context.trace);
         return getTypeInfo(expression, context, this);
     }
 
