@@ -14,7 +14,7 @@ fun <info descr="null">foo</info>() {
 
     <info descr="null"><info descr="null">bar</info></info> <info descr="null" textAttributesKey="KOTLIN_ANNOTATION">@Ann</info> { 1 }
 
-    <error descr="[UNRESOLVED_REFERENCE] Unresolved reference: Err" textAttributesKey="WRONG_REFERENCES_ATTRIBUTES"><error descr="[WRONG_ANNOTATION_TARGET] This annotation is not applicable to target 'EXPRESSION'" textAttributesKey="ERRORS_ATTRIBUTES">@Err</error></error>
+    <error descr="[UNRESOLVED_REFERENCE] Unresolved reference: Err" textAttributesKey="WRONG_REFERENCES_ATTRIBUTES"><error descr="[WRONG_ANNOTATION_TARGET] This annotation is not applicable to target 'expression'" textAttributesKey="ERRORS_ATTRIBUTES">@Err</error></error>
     <warning descr="[UNUSED_EXPRESSION] The expression is unused" textAttributesKey="WARNING_ATTRIBUTES">5</warning>
 }
 
