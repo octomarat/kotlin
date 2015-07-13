@@ -1066,6 +1066,18 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                         doTest(fileName);
                     }
 
+                    @TestMetadata("empty.kt")
+                    public void testEmpty() throws Exception {
+                        String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/empty.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("expr.kt")
+                    public void testExpr() throws Exception {
+                        String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/expr.kt");
+                        doTest(fileName);
+                    }
+
                     @TestMetadata("file.kt")
                     public void testFile() throws Exception {
                         String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/file.kt");
@@ -1075,6 +1087,18 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     @TestMetadata("function.kt")
                     public void testFunction() throws Exception {
                         String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/function.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("incorrect.kt")
+                    public void testIncorrect() throws Exception {
+                        String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/incorrect.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("init.kt")
+                    public void testInit() throws Exception {
+                        String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/init.kt");
                         doTest(fileName);
                     }
 
