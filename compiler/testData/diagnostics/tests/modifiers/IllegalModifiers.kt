@@ -83,9 +83,9 @@ abstract class IllegalModifiers6() {
     <!ILLEGAL_MODIFIER!>open<!> init {}
     <!ILLEGAL_MODIFIER!>final<!> init {}
 
-    <!ILLEGAL_MODIFIER!>public<!> annotated init {}
+    <!ILLEGAL_MODIFIER!>public<!> <!WRONG_ANNOTATION_TARGET!>annotated<!> init {}
 
-    <!ILLEGAL_MODIFIER!>private<!> <!NOT_AN_ANNOTATION_CLASS!>IllegalModifiers6()<!> init {}
+    <!ILLEGAL_MODIFIER!>private<!> <!NOT_AN_ANNOTATION_CLASS, WRONG_ANNOTATION_TARGET!>IllegalModifiers6()<!> init {}
 }
 
 // strange inappropriate modifiers usages
