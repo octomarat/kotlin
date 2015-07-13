@@ -205,6 +205,8 @@ public class QuickFixRegistrar : QuickFixContributor {
         OPEN_MODIFIER_IN_ENUM.registerFactory(RemoveModifierFix.createRemoveModifierFromListOwnerFactory(OPEN_KEYWORD))
         ABSTRACT_MODIFIER_IN_ENUM.registerFactory(RemoveModifierFix.createRemoveModifierFromListOwnerFactory(ABSTRACT_KEYWORD))
         ILLEGAL_ENUM_ANNOTATION.registerFactory(RemoveModifierFix.createRemoveModifierFromListOwnerFactory(ENUM_KEYWORD))
+        ILLEGAL_ANNOTATION_KEYWORD_ON_ENUM.registerFactory(RemoveModifierFix.createRemoveModifierFromListOwnerFactory(ANNOTATION_KEYWORD))
+        ILLEGAL_ANNOTATION_KEYWORD.registerFactory(RemoveModifierFix.createRemoveModifierFromListOwnerFactory(ANNOTATION_KEYWORD))
 
         NESTED_CLASS_NOT_ALLOWED.registerFactory(AddModifierFix.createFactory(INNER_KEYWORD))
 

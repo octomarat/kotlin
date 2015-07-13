@@ -4184,6 +4184,18 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             doTest(fileName);
         }
 
+        @TestMetadata("illegalAnnotationOnConstructor.kt")
+        public void testIllegalAnnotationOnConstructor() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/illegalAnnotationOnConstructor.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("illegalAnnotationOnEnum.kt")
+        public void testIllegalAnnotationOnEnum() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/illegalAnnotationOnEnum.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("illegalEnumAnnotation1.kt")
         public void testIllegalEnumAnnotation1() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/illegalEnumAnnotation1.kt");

@@ -1,0 +1,3 @@
+// "Remove 'annotation' modifier" "true"
+enum class A {
+}
