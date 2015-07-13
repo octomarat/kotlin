@@ -16,17 +16,15 @@
 
 package org.jetbrains.kotlin.descriptors.impl;
 
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.descriptors.annotations.*;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.types.TypeSubstitutor;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public abstract class PropertyAccessorDescriptorImpl extends DeclarationDescriptorNonRootImpl implements PropertyAccessorDescriptor {
 
@@ -158,6 +156,27 @@ public abstract class PropertyAccessorDescriptorImpl extends DeclarationDescript
     @Override
     public void addOverriddenDescriptor(@NotNull CallableMemberDescriptor overridden) {
         throw new IllegalStateException();
+    }
+
+    protected static Annotations appendAnnotationsWithApplicability(
+            Annotations original,
+            PropertyDescriptor descriptor,
+            AnnotationApplicability allowedApplicability
+    ) {
+        List<Pair<? extends AnnotationDescriptor, ? extends AnnotationApplicability>> accessorAnnotations =
+                new ArrayList<Pair<? extends AnnotationDescriptor, ? extends AnnotationApplicability>>();
+
+        for (AnnotationWithApplicability annotation : descriptor.getAnnotations().getAnnotationsWithApplicability()) {
+            AnnotationApplicability applicability = annotation.getApplicability();
+            if (applicability == allowedApplicability) {
+                accessorAnnotations.add(new Pair<AnnotationDescriptor, AnnotationApplicability>(annotation.getAnnotation(), applicability));
+            }
+        }
+
+        List<Annotations> annotationsList = new ArrayList<Annotations>();
+        annotationsList.add(original);
+        annotationsList.add(AnnotationsImpl.create(accessorAnnotations));
+        return new CompositeAnnotations(annotationsList);
     }
 
     @NotNull
