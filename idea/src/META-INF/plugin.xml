@@ -1027,7 +1027,7 @@
           />
 
     <localInspection implementationClass="org.jetbrains.kotlin.idea.inspections.UnusedSymbolInspection"
-        displayName="Unused Symbol"
+        displayName="Unused symbol"
         groupName="Kotlin"
         enabledByDefault="true"
         level="WARNING"
@@ -1039,6 +1039,13 @@
         enabledByDefault="true"
         level="WARNING"
         />
+
+    <localInspection implementationClass="org.jetbrains.kotlin.idea.inspections.UnusedImportInspection"
+                     displayName="Unused import directive"
+                     groupName="Kotlin"
+                     enabledByDefault="true"
+                     level="WARNING"
+    />
 
     <localInspection implementationClass="org.jetbrains.kotlin.idea.kdoc.KDocUnresolvedReferenceInspection"
         displayName="Unresolved reference in KDoc"
