@@ -1,4 +1,5 @@
 annotation class Ann
+annotation class Second
 
 class CustomDelegate {
     public fun get(thisRef: Any?, prop: PropertyMetadata): String = prop.name
@@ -15,7 +16,7 @@ class SomeClass {
     @property:Ann
     protected val p1: String = ""
 
-    @property:[Ann]
+    @property:[Ann Second]
     protected val p2: String = ""
 
     @property:Ann
