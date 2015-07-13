@@ -255,15 +255,18 @@ public class DeclarationsChecker {
             checkTraitModifiers(aClass);
             checkConstructorInTrait(aClass);
         }
-        else if (aClass.isAnnotation()) {
-            checkAnnotationClassWithBody(aClass);
-            checkValOnAnnotationParameter(aClass);
-        }
         else if (aClass.isEnum()) {
             checkEnumModifiers(aClass);
             if (aClass.isLocal()) {
                 trace.report(LOCAL_ENUM_NOT_ALLOWED.on(aClass, classDescriptor));
             }
+            if (aClass.isAnnotation()) {
+                trace.report(ILLEGAL_ANNOTATION_KEYWORD_ON_ENUM.on(aClass));
+            }
+        }
+        else if (aClass.isAnnotation()) {
+            checkAnnotationClassWithBody(aClass);
+            checkValOnAnnotationParameter(aClass);
         }
         else if (aClass.hasModifier(JetTokens.SEALED_KEYWORD)) {
             checkSealedModifiers(aClass);
