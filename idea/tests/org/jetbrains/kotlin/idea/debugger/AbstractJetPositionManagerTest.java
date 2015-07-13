@@ -138,6 +138,7 @@ public abstract class AbstractJetPositionManagerTest extends KotlinMultiFileTest
     public void tearDown() {
         if (debugProcess != null) {
             debugProcess.dispose();
+            debugProcess = null;
         }
         super.tearDown();
     }
