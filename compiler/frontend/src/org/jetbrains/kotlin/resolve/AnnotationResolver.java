@@ -155,10 +155,10 @@ public class AnnotationResolver {
 
             JetAnnotationApplicability applicability = entryElement.getApplicability();
             if (applicability != null) {
-                result.add(new kotlin.Pair<AnnotationDescriptor, AnnotationApplicability>(descriptor, applicability.getAnnotationApplicability()));
+                result.add(KotlinPackage.to(descriptor, applicability.getAnnotationApplicability()));
             }
             else {
-                result.add(new kotlin.Pair<AnnotationDescriptor, AnnotationApplicability>(descriptor, null));
+                result.add(KotlinPackage.to(descriptor, (AnnotationApplicability) null));
             }
         }
         return AnnotationsImpl.create(result);
