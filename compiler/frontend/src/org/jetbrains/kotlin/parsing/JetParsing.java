@@ -464,15 +464,6 @@ public class JetParsing extends AbstractJetParsing {
             else if (annotationParsingMode.allowShortAnnotations && at(IDENTIFIER)) {
                 parseAnnotation(annotationParsingMode);
             }
-            else if (at(ANNOTATION_KEYWORD)) {
-                IElementType next = lookahead(1);
-                if (SOFT_KEYWORDS.contains(next) || next == CLASS_KEYWORD || next == TRAIT_KEYWORD || next == INTERFACE_KEYWORD) {
-                    parseAnnotation(annotationParsingMode);
-                }
-                else {
-                    break;
-                }
-            }
             else {
                 break;
             }
@@ -494,7 +485,7 @@ public class JetParsing extends AbstractJetParsing {
             advance(); // AT
         }
 
-        if (!at(ANNOTATION_KEYWORD) && atSet(MODIFIER_KEYWORDS)) {
+        if (atSet(MODIFIER_KEYWORDS)) {
             IElementType tt = tt();
             if (tokenConsumer != null) {
                 tokenConsumer.consume(tt);
@@ -682,8 +673,7 @@ public class JetParsing extends AbstractJetParsing {
      *   ;
      */
     private boolean parseAnnotation(AnnotationParsingMode mode) {
-        assert _at(IDENTIFIER) || _at(ANNOTATION_KEYWORD) ||
-               (_at(AT) && !WHITE_SPACE_OR_COMMENT_BIT_SET.contains(myBuilder.rawLookup(1)));
+        assert _at(IDENTIFIER) || (_at(AT) && !WHITE_SPACE_OR_COMMENT_BIT_SET.contains(myBuilder.rawLookup(1)));
 
         PsiBuilder.Marker annotation = mark();
 

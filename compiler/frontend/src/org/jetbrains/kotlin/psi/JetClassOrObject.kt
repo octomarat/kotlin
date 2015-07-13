@@ -25,6 +25,7 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.stubs.IStubElementType
 import org.jetbrains.kotlin.JetNodeTypes
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
 import org.jetbrains.kotlin.psi.stubs.elements.JetStubElementTypes
@@ -64,11 +65,10 @@ abstract public class JetClassOrObject : JetTypeParameterListOwnerStub<KotlinCla
 
     public fun getSecondaryConstructors(): List<JetSecondaryConstructor> = getBody()?.getSecondaryConstructors().orEmpty()
 
-    public fun isAnnotation(): Boolean = hasAnnotation(JetTokens.ANNOTATION_KEYWORD.getValue())
+    public fun isAnnotation(): Boolean = hasAnnotation(KotlinBuiltIns.FQ_NAMES.annotation.shortName().asString())
 
     private fun hasAnnotation(name: String): Boolean {
-        val modifierList = getModifierList() ?: return false
-        for (entry in modifierList.getAnnotationEntries()) {
+        for (entry in getAnnotationEntries()) {
             val typeReference = entry.getTypeReference()
             val userType = typeReference?.getStubOrPsiChild(JetStubElementTypes.USER_TYPE) ?: continue
             if (name == userType.getReferencedName()) return true

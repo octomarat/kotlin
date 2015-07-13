@@ -263,6 +263,10 @@ public class JetPsiFactory(private val project: Project) {
         return userType.getReferenceExpression() as JetEnumEntrySuperclassReferenceExpression
     }
 
+    public fun createAnnotationAnnotation(): JetAnnotationEntry {
+        return createDeclaration<JetClass>("annotation class A").getAnnotationEntries()[0]
+    }
+
     public fun createWhenEntry(entryText: String): JetWhenEntry {
         val function = createFunction("fun foo() { when(12) { " + entryText + " } }")
         val whenEntry = PsiTreeUtil.findChildOfType(function, javaClass<JetWhenEntry>())
