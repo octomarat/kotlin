@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.descriptors.impl;
 
+import kotlin.KotlinPackage;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -163,13 +164,13 @@ public abstract class PropertyAccessorDescriptorImpl extends DeclarationDescript
             PropertyDescriptor descriptor,
             AnnotationApplicability allowedApplicability
     ) {
-        List<Pair<? extends AnnotationDescriptor, ? extends AnnotationApplicability>> accessorAnnotations =
-                new ArrayList<Pair<? extends AnnotationDescriptor, ? extends AnnotationApplicability>>();
+        List<Pair<AnnotationDescriptor, AnnotationApplicability>> accessorAnnotations =
+                new ArrayList<Pair<AnnotationDescriptor, AnnotationApplicability>>();
 
         for (AnnotationWithApplicability annotation : descriptor.getAnnotations().getAnnotationsWithApplicability()) {
             AnnotationApplicability applicability = annotation.getApplicability();
             if (applicability == allowedApplicability) {
-                accessorAnnotations.add(new Pair<AnnotationDescriptor, AnnotationApplicability>(annotation.getAnnotation(), applicability));
+                accessorAnnotations.add(KotlinPackage.to(annotation.getAnnotation(), applicability));
             }
         }
 
