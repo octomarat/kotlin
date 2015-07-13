@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.serialization.deserialization.findClassAcrossModuleDependencies
 import kotlin.reflect.KClass
 import kotlin.reflect.KElement
+import kotlin.reflect.KFunction
 import kotlin.reflect.KotlinReflectionInternalError
 
 class KClassImpl<T>(override val jClass: Class<T>) : KCallableContainerImpl(), KClass<T> {
@@ -45,6 +46,15 @@ class KClassImpl<T>(override val jClass: Class<T>) : KCallableContainerImpl(), K
     override val scope: JetScope get() = ChainedScope(
             descriptor, "KClassImpl scope", descriptor.getDefaultType().getMemberScope(), descriptor.getStaticScope()
     )
+
+    override val constructorDescriptors: Sequence<ConstructorDescriptor>
+        get() {
+            val descriptor = descriptor
+            if (descriptor.getKind() == ClassKind.CLASS || descriptor.getKind() == ClassKind.ENUM_CLASS) {
+                return descriptor.getConstructors().asSequence()
+            }
+            return emptySequence()
+        }
 
     override val simpleName: String? get() {
         if (jClass.isAnonymousClass()) return null
@@ -78,7 +88,12 @@ class KClassImpl<T>(override val jClass: Class<T>) : KCallableContainerImpl(), K
     }
 
     override val members: Collection<KElement>
-        get() = getMembers(declaredOnly = false, nonExtensions = true, extensions = true).toList()
+        get() = (getConstructors() + getMembers(declaredOnly = false, nonExtensions = true, extensions = true)).toList()
+
+    fun getConstructors(): Sequence<KFunction<*>> =
+            constructorDescriptors.map { descriptor ->
+                KFunctionImpl(this, descriptor)
+            }
 
     fun getMembers(declaredOnly: Boolean, nonExtensions: Boolean, extensions: Boolean): Sequence<KElement> =
             scope.getAllDescriptors().asSequence()
