@@ -360,7 +360,7 @@ internal class DescriptorRendererImpl(
     override fun renderAnnotation(annotation: AnnotationDescriptor, applicability: AnnotationApplicability?): String {
         return StringBuilder {
             if (applicability != null) {
-                append("@" + applicability.renderName)
+                append("@" + applicability.renderName + ":")
             }
             append(renderType(annotation.getType()))
             if (verbose) {
