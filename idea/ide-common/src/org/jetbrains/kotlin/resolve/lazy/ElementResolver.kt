@@ -46,7 +46,7 @@ public abstract class ElementResolver protected constructor(
         public val resolveSession: ResolveSession
 ) {
     public open fun getElementAdditionalResolve(resolveElement: JetElement, contextElement: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
-        return performElementAdditionalResolve(resolveElement, resolveElement, bodyResolveMode)
+        return performElementAdditionalResolve(resolveElement, resolveElement, bodyResolveMode).first
     }
 
     protected open fun probablyNothingCallableNames(): ProbablyNothingCallableNames
@@ -73,7 +73,7 @@ public abstract class ElementResolver protected constructor(
         return resolveSession.getBindingContext()
     }
 
-    protected fun findElementOfAdditionalResolve(element: JetElement): JetElement? {
+    private fun findElementOfAdditionalResolve(element: JetElement): JetElement? {
         val elementOfAdditionalResolve = JetPsiUtil.getTopmostParentOfTypes(
                 element,
                 javaClass<JetNamedFunction>(),
@@ -106,7 +106,7 @@ public abstract class ElementResolver protected constructor(
         }
     }
 
-    protected fun performElementAdditionalResolve(resolveElement: JetElement, contextElement: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
+    protected fun performElementAdditionalResolve(resolveElement: JetElement, contextElement: JetElement, bodyResolveMode: BodyResolveMode): Pair<BindingContext, StatementFilter> {
         val file = resolveElement.getContainingJetFile()
 
         val statementFilter = if (bodyResolveMode != BodyResolveMode.FULL && resolveElement is JetDeclaration)
@@ -157,7 +157,7 @@ public abstract class ElementResolver protected constructor(
         JetFlowInformationProvider(resolveElement, controlFlowTrace).checkDeclaration()
         controlFlowTrace.addOwnDataTo(trace, null, false)
 
-        return trace.getBindingContext()
+        return Pair(trace.getBindingContext(), statementFilter)
     }
 
     private fun packageRefAdditionalResolve(resolveSession: ResolveSession, jetElement: JetElement): BindingTrace {
@@ -477,8 +477,9 @@ public abstract class ElementResolver protected constructor(
         return null
     }
 
-    protected abstract fun createAdditionalCheckerProvider(jetFile: JetFile, module: ModuleDescriptor): AdditionalCheckerProvider
-    protected abstract fun getDynamicTypesSettings(jetFile: JetFile): DynamicTypesSettings
+    protected abstract fun createAdditionalCheckerProvider(file: JetFile, module: ModuleDescriptor): AdditionalCheckerProvider
+
+    protected abstract fun getDynamicTypesSettings(file: JetFile): DynamicTypesSettings
 
     private class BodyResolveContextForLazy(
             private val topDownAnalysisMode: TopDownAnalysisMode,
