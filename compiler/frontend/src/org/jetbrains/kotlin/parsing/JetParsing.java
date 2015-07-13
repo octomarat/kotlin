@@ -673,7 +673,8 @@ public class JetParsing extends AbstractJetParsing {
      *   ;
      */
     private boolean parseAnnotation(AnnotationParsingMode mode) {
-        assert _at(IDENTIFIER) || (_at(AT) && !WHITE_SPACE_OR_COMMENT_BIT_SET.contains(myBuilder.rawLookup(1)));
+        assert _at(IDENTIFIER) ||
+               (_at(AT) && !WHITE_SPACE_OR_COMMENT_BIT_SET.contains(myBuilder.rawLookup(1)));
 
         PsiBuilder.Marker annotation = mark();
 
