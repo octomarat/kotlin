@@ -356,6 +356,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             if (callableDescriptor is VariableDescriptor) {
                 val compileTimeInitializer = callableDescriptor.getCompileTimeInitializer() ?: return null
 
+                //TODO_R: just rewrap?
                 val value = compileTimeInitializer.getValue(expectedType ?: TypeUtils.NO_EXPECTED_TYPE)
                 return createConstant(
                         value,
@@ -410,7 +411,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             val arguments = call.getValueArguments().values().flatMap { resolveArguments(it.getArguments(), varargType) }
 
             //TODO_R: !!, arguments.any() { it.usesVariableAsConstant() })
-            return ArrayValue(arguments.map { it.toConstantValue(varargType) }, resultingDescriptor.getReturnType()).wrap()
+            return ArrayValue(arguments.map { it.toConstantValue(varargType) }, resultingDescriptor.getReturnType()!!).wrap()
         }
 
         // Ann()
