@@ -67,6 +67,11 @@ public object AnnotationTargetChecker {
                 }
             }
         }
+        if (annotated is JetClassOrObject) {
+            for (initializer in annotated.getAnonymousInitializers()) {
+                check(initializer, trace)
+            }
+        }
     }
 
     public fun checkExpression(expression: JetExpression, trace: BindingTrace) {
