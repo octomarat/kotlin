@@ -51,6 +51,8 @@ public object AnnotationTargetChecker {
 
     private val DEFAULT_TARGET_LIST = Target.values().filter { it.isDefault }.map { it.name() }
 
+    private val ALL_TARGET_LIST = Target.values().map { it.name() }
+
     public fun check(annotated: JetAnnotated, trace: BindingTrace) {
         if (annotated is JetTypeParameter) return // TODO: support type parameter annotations
         val actualTargets = getActualTargetList(annotated)
@@ -82,6 +84,8 @@ public object AnnotationTargetChecker {
 
     private fun possibleTargetList(entry: JetAnnotationEntry, trace: BindingTrace): List<String> {
         val descriptor = trace.get(BindingContext.ANNOTATION, entry) ?: return DEFAULT_TARGET_LIST
+        // For descriptor with error type, all targets are considered as possible
+        if (descriptor.getType().isError()) return ALL_TARGET_LIST
         val classDescriptor = TypeUtils.getClassDescriptor(descriptor.getType()) ?: return DEFAULT_TARGET_LIST
         val targetEntryDescriptor = classDescriptor.getAnnotations().findAnnotation(KotlinBuiltIns.FQ_NAMES.target)
                                     ?: return DEFAULT_TARGET_LIST
