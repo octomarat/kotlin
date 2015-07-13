@@ -21,6 +21,7 @@ import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.functions.BuiltInFictitiousFunctionClassFactory;
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptorImpl;
@@ -785,8 +786,8 @@ public class KotlinBuiltIns {
 
         if (!BUILT_INS_PACKAGE_NAME.equals(first(segments))) return false;
 
-        String shortName = last(segments).asString();
-        return BuiltInFictitiousFunctionClassFactory.parseClassName(shortName, BUILT_INS_PACKAGE_FQ_NAME) != null;
+        String prefix = FunctionClassDescriptor.Kind.Function.getClassNamePrefix();
+        return last(segments).asString().matches(prefix + "[0-9]+");
     }
 
     @Nullable
