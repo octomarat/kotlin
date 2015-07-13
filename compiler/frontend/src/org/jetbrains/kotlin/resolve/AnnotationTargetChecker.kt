@@ -62,7 +62,9 @@ public object AnnotationTargetChecker {
         }
         if (annotated is JetFunction) {
             for (parameter in annotated.getValueParameters()) {
-                check(parameter, trace)
+                if (!parameter.hasValOrVar()) {
+                    check(parameter, trace)
+                }
             }
         }
     }

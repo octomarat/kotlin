@@ -164,7 +164,6 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
 
         scope.addVariableDescriptor(propertyDescriptor);
         ModifiersChecker.create(context.trace, components.additionalCheckerProvider).checkModifiersForLocalDeclaration(property, propertyDescriptor);
-        AnnotationTargetChecker.INSTANCE$.check(property, context.trace);
         return typeInfo.replaceType(DataFlowUtils.checkStatementType(property, context));
     }
 

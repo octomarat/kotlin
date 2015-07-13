@@ -91,7 +91,6 @@ public class DeclarationsChecker {
             checkPrimaryConstructor(classOrObject, classDescriptor);
 
             modifiersChecker.checkModifiersForDeclaration(classOrObject, classDescriptor);
-            AnnotationTargetChecker.INSTANCE$.check(classOrObject, trace);
         }
 
         Map<JetNamedFunction, SimpleFunctionDescriptor> functions = bodiesResolveContext.getFunctions();
@@ -101,7 +100,6 @@ public class DeclarationsChecker {
 
             checkFunction(function, functionDescriptor);
             modifiersChecker.checkModifiersForDeclaration(function, functionDescriptor);
-            AnnotationTargetChecker.INSTANCE$.check(function, trace);
         }
 
         Map<JetProperty, PropertyDescriptor> properties = bodiesResolveContext.getProperties();
@@ -125,7 +123,6 @@ public class DeclarationsChecker {
         modifiersChecker.reportIllegalModalityModifiers(declaration);
         reportErrorIfHasIllegalModifier(declaration);
         modifiersChecker.checkModifiersForDeclaration(declaration, constructorDescriptor);
-        AnnotationTargetChecker.INSTANCE$.check(declaration, trace);
     }
 
     private void reportErrorIfHasIllegalModifier(JetModifierListOwner declaration) {
@@ -374,7 +371,6 @@ public class DeclarationsChecker {
         checkPropertyInitializer(property, propertyDescriptor);
         checkAccessors(property, propertyDescriptor);
         checkDeclaredTypeInPublicMember(property, propertyDescriptor);
-        AnnotationTargetChecker.INSTANCE$.check(property, trace);
     }
 
     private void checkDeclaredTypeInPublicMember(JetNamedDeclaration member, CallableMemberDescriptor memberDescriptor) {
@@ -532,7 +528,6 @@ public class DeclarationsChecker {
             assert propertyAccessorDescriptor != null : "No property accessor descriptor for " + property.getText();
             modifiersChecker.checkModifiersForDeclaration(accessor, propertyAccessorDescriptor);
             modifiersChecker.reportIllegalModalityModifiers(accessor);
-            AnnotationTargetChecker.INSTANCE$.check(accessor, trace);
         }
         JetPropertyAccessor getter = property.getGetter();
         PropertyGetterDescriptor getterDescriptor = propertyDescriptor.getGetter();

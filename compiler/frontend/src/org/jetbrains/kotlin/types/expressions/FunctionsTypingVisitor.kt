@@ -105,7 +105,6 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
 
         ModifiersChecker.create(context.trace, components.additionalCheckerProvider)
                 .checkModifiersForLocalDeclaration(function, functionDescriptor)
-        AnnotationTargetChecker.check(function, context.trace)
         if (!function.hasBody()) {
             context.trace.report(NON_MEMBER_FUNCTION_NO_BODY.on(function, functionDescriptor))
         }
