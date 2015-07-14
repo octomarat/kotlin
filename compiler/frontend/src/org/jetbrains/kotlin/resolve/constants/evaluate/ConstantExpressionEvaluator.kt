@@ -83,10 +83,13 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
     }
 
     private val stringExpressionEvaluator = object : JetVisitor<ConstantValueCompileTimeConstant<String>, Nothing>() {
-        private fun createStringConstant(compileTimeConstant: CompileTimeConstant<*>?): ConstantValueCompileTimeConstant<String>? {
-            return compileTimeConstant?.getValue(TypeUtils.NO_EXPECTED_TYPE)?.toString()?.let {
-                factory.createStringValue(it)
-            }?.wrap(compileTimeConstant.parameters)
+        private fun createStringConstant(compileTimeConstant: CompileTimeConstant<*>): ConstantValueCompileTimeConstant<String>? {
+            val constantValue = compileTimeConstant.toConstantValue(TypeUtils.NO_EXPECTED_TYPE)
+            return when (constantValue) {
+                is ErrorValue, is EnumValue -> return null
+                is NullValue -> factory.createStringValue("null")
+                else -> factory.createStringValue(constantValue.value.toString())
+            }.wrap(compileTimeConstant.parameters)
         }
 
         fun evaluate(entry: JetStringTemplateEntry): ConstantValueCompileTimeConstant<String>? {
@@ -94,10 +97,11 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         }
 
         override fun visitStringTemplateEntryWithExpression(entry: JetStringTemplateEntryWithExpression, data: Nothing?): ConstantValueCompileTimeConstant<String>? {
-            val expression = entry.getExpression()
-            if (expression == null) return null
+            val expression = entry.getExpression() ?: return null
 
-            return createStringConstant(this@ConstantExpressionEvaluator.evaluate(expression, KotlinBuiltIns.getInstance().getStringType()))
+            return this@ConstantExpressionEvaluator.evaluate(expression, KotlinBuiltIns.getInstance().getStringType())?.let {
+                createStringConstant(it)
+            }
         }
 
         override fun visitLiteralStringTemplateEntry(entry: JetLiteralStringTemplateEntry, data: Nothing?) = factory.createStringValue(entry.getText()).wrap(CompileTimeConstant.Parameters(true, false, false))
