@@ -53,21 +53,9 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         platformStatic public fun evaluateToStrictlyTyped(
                 expression: JetExpression,
                 trace: BindingTrace,
-                expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
+                expectedType: JetType
         ): ConstantValueCompileTimeConstant<*>? {
             return evaluate(expression, trace, expectedType)?.toStrictlyTyped(expectedType)
-        }
-
-        platformStatic public fun isPropertyCompileTimeConstant(descriptor: VariableDescriptor): Boolean {
-            if (descriptor.isVar()) {
-                return false
-            }
-            if (DescriptorUtils.isObject(descriptor.getContainingDeclaration()) ||
-                DescriptorUtils.isStaticDeclaration(descriptor)) {
-                val returnType = descriptor.getType()
-                return KotlinBuiltIns.isPrimitiveType(returnType) || KotlinBuiltIns.isString(returnType)
-            }
-            return false
         }
 
         platformStatic public fun getConstant(expression: JetExpression, bindingContext: BindingContext): CompileTimeConstant<*>? {
@@ -368,6 +356,18 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             }
         }
         return null
+    }
+
+    private fun isPropertyCompileTimeConstant(descriptor: VariableDescriptor): Boolean {
+        if (descriptor.isVar()) {
+            return false
+        }
+        if (DescriptorUtils.isObject(descriptor.getContainingDeclaration()) ||
+            DescriptorUtils.isStaticDeclaration(descriptor)) {
+            val returnType = descriptor.getType()
+            return KotlinBuiltIns.isPrimitiveType(returnType) || KotlinBuiltIns.isString(returnType)
+        }
+        return false
     }
 
     override fun visitQualifiedExpression(expression: JetQualifiedExpression, expectedType: JetType?): CompileTimeConstant<*>? {

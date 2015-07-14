@@ -78,7 +78,7 @@ public final class ExpressionVisitor extends TranslatorVisitor<JsNode> {
         CompileTimeConstant<?> compileTimeValue = ConstantExpressionEvaluator.getConstant(expression, context.bindingContext());
         assert compileTimeValue != null : message(expression, "Expression is not compile time value: " + expression.getText() + " ");
         JetType expectedType = context.bindingContext().getType(expression);
-        ConstantValue<?> constant = compileTimeValue.toStrictlyTyped(expectedType != null ? expectedType : TypeUtils.NO_EXPECTED_TYPE).getConstantValue();
+        ConstantValue<?> constant = compileTimeValue.toConstantValue(expectedType != null ? expectedType : TypeUtils.NO_EXPECTED_TYPE);
         if (constant instanceof NullValue) {
             return JsLiteral.NULL;
         }

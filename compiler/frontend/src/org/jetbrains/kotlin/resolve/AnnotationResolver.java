@@ -241,7 +241,7 @@ public class AnnotationResolver {
         List<ConstantValue<?>> constants = KotlinPackage.map(compileTimeConstants, new Function1<CompileTimeConstant<?>, ConstantValue<?>>() {
             @Override
             public ConstantValue<?> invoke(CompileTimeConstant<?> constant) {
-                return constant.toStrictlyTyped(constantType).getConstantValue();
+                return constant.toConstantValue(constantType);
             }
         });
 
