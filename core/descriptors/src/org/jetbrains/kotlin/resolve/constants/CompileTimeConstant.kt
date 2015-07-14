@@ -37,27 +37,11 @@ public interface CompileTimeConstant<out T> {
 
     public fun usesVariableAsConstant(): Boolean = parameters.usesVariableAsConstant
 
-    public interface Parameters {
-        public open val canBeUsedInAnnotation: Boolean
-        public open val isPure: Boolean
-        public open val usesVariableAsConstant: Boolean
-
-        public class Impl(
-                override val canBeUsedInAnnotation: Boolean,
-                override val isPure: Boolean,
-                override val usesVariableAsConstant: Boolean
-        ) : Parameters
-
-        //TODO_R: get rid of usages?
-        public object ThrowException : Parameters {
-            override val canBeUsedInAnnotation: Boolean
-                get() = error("Should not be called")
-            override val isPure: Boolean
-                get() = error("Should not be called")
-            override val usesVariableAsConstant: Boolean
-                get() = error("Should not be called")
-        }
-    }
+    public class Parameters(
+            public val canBeUsedInAnnotation: Boolean,
+            public val isPure: Boolean,
+            public val usesVariableAsConstant: Boolean
+    )
 }
 
 public class ConstantValueCompileTimeConstant<out T>(
@@ -77,7 +61,7 @@ public class ConstantValueCompileTimeConstant<out T>(
 public fun <T> ConstantValue<T>.wrap(parameters: CompileTimeConstant.Parameters = defaultParameters()): ConstantValueCompileTimeConstant<T>
         = ConstantValueCompileTimeConstant(this, parameters)
 
-public fun ConstantValue<*>.defaultParameters(): CompileTimeConstant.Parameters = CompileTimeConstant.Parameters.Impl(
+public fun ConstantValue<*>.defaultParameters(): CompileTimeConstant.Parameters = CompileTimeConstant.Parameters(
         canBeUsedInAnnotation = this !is NullValue,
         isPure = false,
         usesVariableAsConstant = false

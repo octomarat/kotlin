@@ -100,9 +100,9 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             return createStringConstant(this@ConstantExpressionEvaluator.evaluate(expression, KotlinBuiltIns.getInstance().getStringType()))
         }
 
-        override fun visitLiteralStringTemplateEntry(entry: JetLiteralStringTemplateEntry, data: Nothing?) = factory.createStringValue(entry.getText()).wrap(CompileTimeConstant.Parameters.Impl(true, false, false))
+        override fun visitLiteralStringTemplateEntry(entry: JetLiteralStringTemplateEntry, data: Nothing?) = factory.createStringValue(entry.getText()).wrap(CompileTimeConstant.Parameters(true, false, false))
 
-        override fun visitEscapeStringTemplateEntry(entry: JetEscapeStringTemplateEntry, data: Nothing?) = factory.createStringValue(entry.getUnescapedValue()).wrap(CompileTimeConstant.Parameters.Impl(true, false, false))
+        override fun visitEscapeStringTemplateEntry(entry: JetEscapeStringTemplateEntry, data: Nothing?) = factory.createStringValue(entry.getUnescapedValue()).wrap(CompileTimeConstant.Parameters(true, false, false))
     }
 
     override fun visitConstantExpression(expression: JetConstantExpression, expectedType: JetType?): CompileTimeConstant<*>? {
@@ -120,7 +120,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         } ?: return null
 
         fun isLongWithSuffix() = nodeElementType == JetNodeTypes.INTEGER_CONSTANT && hasLongSuffix(text)
-        return createConstant(result, expectedType, CompileTimeConstant.Parameters.Impl(true, !isLongWithSuffix(), false))
+        return createConstant(result, expectedType, CompileTimeConstant.Parameters(true, !isLongWithSuffix(), false))
     }
 
     override fun visitParenthesizedExpression(expression: JetParenthesizedExpression, expectedType: JetType?): CompileTimeConstant<*>? {
@@ -160,7 +160,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             createConstant(
                     sb.toString(),
                     expectedType,
-                    CompileTimeConstant.Parameters.Impl(
+                    CompileTimeConstant.Parameters(
                             isPure = true,
                             canBeUsedInAnnotation = canBeUsedInAnnotation,
                             usesVariableAsConstant = usesVariableAsConstant
@@ -196,7 +196,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
                 else -> throw IllegalArgumentException("Unknown boolean operation token ${operationToken}")
             }
             val usesVariableAsConstant = leftConstant.usesVariableAsConstant() || rightConstant.usesVariableAsConstant()
-            return createConstant(result, expectedType, CompileTimeConstant.Parameters.Impl(true, true, usesVariableAsConstant))
+            return createConstant(result, expectedType, CompileTimeConstant.Parameters(true, true, usesVariableAsConstant))
         }
         else {
             return evaluateCall(expression.getOperationReference(), leftExpression, expectedType)
@@ -223,7 +223,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             return createConstant(
                     result,
                     expectedType,
-                    CompileTimeConstant.Parameters.Impl(
+                    CompileTimeConstant.Parameters(
                             canBeUsedInAnnotation,
                             !isNumberConversionMethod && isArgumentPure,
                             usesVariableAsConstant)
@@ -246,7 +246,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             val areArgumentsPure = isPureConstant(argumentForReceiver.expression) && isPureConstant(argumentForParameter.expression)
             val canBeUsedInAnnotation = canBeUsedInAnnotation(argumentForReceiver.expression) && canBeUsedInAnnotation(argumentForParameter.expression)
             val usesVariableAsConstant = usesVariableAsConstant(argumentForReceiver.expression) || usesVariableAsConstant(argumentForParameter.expression)
-            val parameters = CompileTimeConstant.Parameters.Impl(canBeUsedInAnnotation, areArgumentsPure, usesVariableAsConstant)
+            val parameters = CompileTimeConstant.Parameters(canBeUsedInAnnotation, areArgumentsPure, usesVariableAsConstant)
             return when (resultingDescriptorName) {
                 OperatorConventions.COMPARE_TO -> createCompileTimeConstantForCompareTo(result, callExpression, factory)?.wrap(parameters)
                 OperatorConventions.EQUALS -> createCompileTimeConstantForEquals(result, callExpression, factory)?.wrap(parameters)
@@ -347,7 +347,7 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
                 return createConstant(
                         variableInitializerInitializer.value,
                         expectedType,
-                        CompileTimeConstant.Parameters.Impl(
+                        CompileTimeConstant.Parameters(
                                 canBeUsedInAnnotation = isPropertyCompileTimeConstant(callableDescriptor),
                                 isPure = false,
                                 usesVariableAsConstant = true
