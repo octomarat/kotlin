@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
-import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.descriptors.annotations.CompositeAnnotations;
 import org.jetbrains.kotlin.resolve.calls.inference.InferencePackage;
 import org.jetbrains.kotlin.resolve.scopes.SubstitutingScope;
@@ -225,7 +224,7 @@ public class TypeSubstitutor {
 
             // substitutionType.annotations = replacement.annotations ++ type.annotations
             if (!type.getAnnotations().isEmpty()) {
-                substitutedType = new ReplacedAnnotationsType(
+                substitutedType = TypeUtilPackage.replaceAnnotations(
                         substitutedType,
                         new CompositeAnnotations(substitutedType.getAnnotations(), type.getAnnotations())
                 );
