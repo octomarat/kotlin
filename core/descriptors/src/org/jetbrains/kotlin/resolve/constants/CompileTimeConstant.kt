@@ -74,20 +74,19 @@ public class IntegerValueTypeConstant(
     private val typeConstructor = IntegerValueTypeConstructor(value.toLong())
 
     override fun toStrictlyTyped(expectedType: JetType): ConstantValueCompileTimeConstant<Number> {
-        val numberValue = typeConstructor.getValue()
         val factory = CompileTimeConstantFactory(KotlinBuiltIns.getInstance())
         val constantValue: ConstantValue<Number> = when (getType(expectedType)) {
             KotlinBuiltIns.getInstance().getIntType() -> {
-                factory.createIntValue(numberValue.toInt())
+                factory.createIntValue(value.toInt())
             }
             KotlinBuiltIns.getInstance().getByteType() -> {
-                factory.createByteValue(numberValue.toByte())
+                factory.createByteValue(value.toByte())
             }
             KotlinBuiltIns.getInstance().getShortType() -> {
-                factory.createShortValue(numberValue.toShort())
+                factory.createShortValue(value.toShort())
             }
             else -> {
-                factory.createLongValue(numberValue.toLong())
+                factory.createLongValue(value.toLong())
             }
         }
         //TODO_R: parameters?
