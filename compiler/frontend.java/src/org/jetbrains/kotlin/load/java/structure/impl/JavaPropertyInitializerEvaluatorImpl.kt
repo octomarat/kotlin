@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 public class JavaPropertyInitializerEvaluatorImpl : JavaPropertyInitializerEvaluator {
     override fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValue<*>? {
         val initializer = (field as JavaFieldImpl).getInitializer()
-        val evaluated = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
+        val evaluated = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false) ?: return null
         val factory = CompileTimeConstantFactory(descriptor.builtIns)
         when (evaluated) {
             //TODO_R: is Char????
