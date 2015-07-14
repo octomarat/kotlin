@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.*
 import org.jetbrains.kotlin.resolve.DescriptorFactory
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant
 import org.jetbrains.kotlin.serialization.ProtoBuf.Callable
 import org.jetbrains.kotlin.serialization.ProtoBuf.Callable.CallableKind.*
@@ -115,7 +116,7 @@ public class MemberDeserializer(private val c: DeserializationContext) {
                 c.storageManager.createNullableLazyValue {
                     val container = c.containingDeclaration.asProtoContainer()
                     val constantValue = c.components.annotationAndConstantLoader.loadPropertyConstant(container, proto, c.nameResolver, property.getReturnType())
-                    ConstantValueCompileTimeConstant(constantValue, CompileTimeConstant.Parameters.ThrowException)
+                    ConstantValueCompileTimeConstant(constantValue as ConstantValue<Any?>, CompileTimeConstant.Parameters.ThrowException)
                 }
             )
         }
