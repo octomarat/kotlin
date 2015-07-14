@@ -76,5 +76,21 @@ public class CompileTimeConstantFactory(
             else -> null
         }
     }
+
+    public fun createIntegerConstantValue(
+            value: Long,
+            expectedType: JetType
+    ): ConstantValue<*>? {
+        val notNullExpected = TypeUtils.makeNotNullable(expectedType)
+        return when {
+            KotlinBuiltIns.isLong(notNullExpected) -> createLongValue(value)
+            KotlinBuiltIns.isInt(notNullExpected) && value == value.toInt().toLong() -> createIntValue(value.toInt())
+            KotlinBuiltIns.isShort(notNullExpected) && value == value.toShort().toLong() -> createShortValue(value.toShort())
+            KotlinBuiltIns.isByte(notNullExpected) && value == value.toByte().toLong() -> createByteValue(value.toByte())
+            //TODO_R: really?
+            KotlinBuiltIns.isChar(notNullExpected) -> createIntValue(value.toInt())
+            else -> null
+        }
+    }
 }
 

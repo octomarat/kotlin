@@ -28,11 +28,17 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 public class JavaPropertyInitializerEvaluatorImpl : JavaPropertyInitializerEvaluator {
     override fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValue<*>? {
         val initializer = (field as JavaFieldImpl).getInitializer()
-        val evaluatedExpression = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
-        if (evaluatedExpression != null) {
-            return CompileTimeConstantFactory(descriptor.builtIns).createCompileTimeConstant(evaluatedExpression)
+        val evaluated = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
+        val factory = CompileTimeConstantFactory(descriptor.builtIns)
+        when (evaluated) {
+            //TODO_R: is Char????
+            is Byte, is Short, is Int, is Long -> {
+                return factory.createIntegerConstantValue((evaluated as Number).toLong(), descriptor.getType())
+            }
+            else -> {
+                return factory.createCompileTimeConstant(evaluated)
+            }
         }
-        return null
     }
 
     override fun isNotNullCompileTimeConstant(field: JavaField): Boolean {

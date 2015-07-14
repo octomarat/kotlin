@@ -500,12 +500,12 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
             expectedType: JetType
     ): CompileTimeConstant<*>? {
         return when (value) {
-            is Byte, is Short, is Int, is Long -> return getIntegerValue((value as Number).toLong(), parameters, expectedType)
+            is Byte, is Short, is Int, is Long -> createIntegerCompileTimeConstant((value as Number).toLong(), parameters, expectedType)
             else -> factory.createCompileTimeConstant(value)?.wrap(parameters)
         }
     }
 
-    private fun getIntegerValue(
+    public fun createIntegerCompileTimeConstant(
             value: Long,
             parameters: CompileTimeConstant.Parameters,
             expectedType: JetType
@@ -513,33 +513,13 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         if (TypeUtils.noExpectedType(expectedType) || expectedType.isError()) {
             return IntegerValueTypeConstant(value, parameters)
         }
-
-        fun defaultIntegerValue(value: Long) = when (value) {
+        val integerValue = factory.createIntegerConstantValue(value, expectedType)
+        if (integerValue != null) {
+            return integerValue.wrap(parameters)
+        }
+        return when (value) {
             value.toInt().toLong() -> factory.createIntValue(value.toInt())
             else -> factory.createLongValue(value)
-        }
-
-
-        val notNullExpected = TypeUtils.makeNotNullable(expectedType)
-        return when {
-            KotlinBuiltIns.isLong(notNullExpected) -> factory.createLongValue(value)
-
-            KotlinBuiltIns.isShort(notNullExpected) ->
-                if (value == value.toShort().toLong())
-                    factory.createShortValue(value.toShort())
-                else
-                    defaultIntegerValue(value)
-
-            KotlinBuiltIns.isByte(notNullExpected) ->
-                if (value == value.toByte().toLong())
-                    factory.createByteValue(value.toByte())
-                else
-                    defaultIntegerValue(value)
-
-            KotlinBuiltIns.isChar(notNullExpected) ->
-                factory.createIntValue(value.toInt())
-
-            else -> defaultIntegerValue(value)
         }.wrap(parameters)
     }
 }
