@@ -32,7 +32,6 @@ import org.jetbrains.kotlin.resolve.DescriptorFactory;
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils;
 import org.jetbrains.kotlin.resolve.annotations.AnnotationsPackage;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPropertyDescriptor;
@@ -312,9 +311,9 @@ public class PropertyCodegen {
         Object value = null;
 
         if (shouldWriteFieldInitializer(propertyDescriptor)) {
-            CompileTimeConstant<?> initializer = propertyDescriptor.getCompileTimeInitializer();
+            ConstantValue<?> initializer = propertyDescriptor.getCompileTimeInitializer();
             if (initializer != null) {
-                value = initializer.getValue(propertyDescriptor.getType());
+                value = initializer.getValue();
             }
         }
 

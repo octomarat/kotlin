@@ -21,26 +21,16 @@ import com.intellij.psi.util.PsiUtil
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.load.java.structure.JavaField
 import org.jetbrains.kotlin.load.java.structure.JavaPropertyInitializerEvaluator
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstantFactory
-import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant
-import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
-import org.jetbrains.kotlin.resolve.constants.wrap
 
 public class JavaPropertyInitializerEvaluatorImpl : JavaPropertyInitializerEvaluator {
-    override fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValueCompileTimeConstant<*>? {
+    override fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValue<*>? {
         val initializer = (field as JavaFieldImpl).getInitializer()
         val evaluatedExpression = JavaConstantExpressionEvaluator.computeConstantExpression(initializer, false)
         if (evaluatedExpression != null) {
-            val factory = CompileTimeConstantFactory(descriptor.builtIns)
-            return factory.createCompileTimeConstant(evaluatedExpression)?.wrap(
-                    CompileTimeConstant.Parameters.Impl(
-                            ConstantExpressionEvaluator.isPropertyCompileTimeConstant(descriptor),
-                            false,
-                            true
-                    )
-            )
+            return CompileTimeConstantFactory(descriptor.builtIns).createCompileTimeConstant(evaluatedExpression)
         }
         return null
     }

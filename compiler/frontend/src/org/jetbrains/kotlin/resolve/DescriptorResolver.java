@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.psi.psiUtil.PsiUtilPackage;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant;
+import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant;
 import org.jetbrains.kotlin.resolve.constants.IntegerValueTypeConstant;
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator;
@@ -869,13 +870,17 @@ public class DescriptorResolver {
         if (!variable.hasInitializer()) return;
 
         variableDescriptor.setCompileTimeInitializer(
-            storageManager.createRecursionTolerantNullableLazyValue(new Function0<ConstantValueCompileTimeConstant<?>>() {
+            storageManager.createRecursionTolerantNullableLazyValue(new Function0<ConstantValue<?>>() {
                 @Nullable
                 @Override
-                public ConstantValueCompileTimeConstant<?> invoke() {
+                public ConstantValue<?> invoke() {
                     JetExpression initializer = variable.getInitializer();
                     JetType initializerType = expressionTypingServices.safeGetType(scope, initializer, variableType, dataFlowInfo, trace);
-                    return ConstantExpressionEvaluator.evaluateToStrictlyTyped(initializer, trace, initializerType);
+                    CompileTimeConstant<?> compileTimeConstant = ConstantExpressionEvaluator.evaluate(initializer, trace, initializerType);
+                    if (compileTimeConstant == null) {
+                        return null;
+                    }
+                    return compileTimeConstant.toConstantValue(initializerType);
                 }
             }, null)
         );

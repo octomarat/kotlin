@@ -60,7 +60,7 @@ public class BuiltInsSerializerExtension(module: ModuleDescriptor) : SerializerE
             proto.addExtension(BuiltInsProtoBuf.callableAnnotation, annotationSerializer.serializeAnnotation(annotation, stringTable))
         }
         val propertyDescriptor = callable as? PropertyDescriptor ?: return
-        val compileTimeConstant = propertyDescriptor.getCompileTimeInitializer()?.constantValue
+        val compileTimeConstant = propertyDescriptor.getCompileTimeInitializer()
         if (compileTimeConstant != null && compileTimeConstant !is NullValue) {
             val valueProto = annotationSerializer.valueProto(compileTimeConstant, compileTimeConstant.type, stringTable)
             proto.setExtension(BuiltInsProtoBuf.compileTimeValue, valueProto.build())

@@ -700,9 +700,8 @@ internal class DescriptorRendererImpl(
 
     private fun renderInitializer(variable: VariableDescriptor, builder: StringBuilder) {
         if (includePropertyConstant) {
-            val initializer = variable.getCompileTimeInitializer()?.constantValue
-            if (initializer != null) {
-                builder.append(" = ").append(escape(renderConstant(initializer)))
+            variable.getCompileTimeInitializer()?.let { constant ->
+                builder.append(" = ").append(escape(renderConstant(constant)))
             }
         }
     }

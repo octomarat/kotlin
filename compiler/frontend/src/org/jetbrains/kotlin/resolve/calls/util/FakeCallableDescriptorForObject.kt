@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.calls.util
 
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant
 import org.jetbrains.kotlin.resolve.descriptorUtil.classObjectType
 import org.jetbrains.kotlin.resolve.descriptorUtil.getClassObjectReferenceTarget
@@ -59,7 +60,7 @@ public class FakeCallableDescriptorForObject(
 
     override fun getOriginal(): CallableDescriptor = this
 
-    override fun getCompileTimeInitializer(): ConstantValueCompileTimeConstant<out Any?>? = null
+    override fun getCompileTimeInitializer() = null
 
     override fun getSource(): SourceElement = classDescriptor.getSource()
 }

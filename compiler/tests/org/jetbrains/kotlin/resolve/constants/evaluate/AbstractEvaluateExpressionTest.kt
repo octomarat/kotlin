@@ -17,11 +17,12 @@
 package org.jetbrains.kotlin.resolve.constants.evaluate
 
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
+import org.jetbrains.kotlin.psi.JetProperty
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.annotation.AbstractAnnotationDescriptorResolveTest
-import org.jetbrains.kotlin.resolve.constants.IntegerValueConstant
 import org.jetbrains.kotlin.resolve.constants.StringValue
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.JetTestUtils
@@ -35,7 +36,7 @@ public abstract class AbstractEvaluateExpressionTest : AbstractAnnotationDescrip
     fun doConstantTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()?.toStrictlyTyped(KotlinBuiltIns.getInstance().getStringType())?.constantValue
+            val compileTimeConstant = property.getCompileTimeInitializer()
             if (compileTimeConstant is StringValue) {
                 "\\\"${compileTimeConstant.value}\\\""
             } else {
@@ -56,7 +57,12 @@ error("a")        }
     fun doUsesVariableAsConstantTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
+            val propertyDeclaration = DescriptorToSourceUtils.descriptorToDeclaration(property) as JetProperty
+            val compileTimeConstant = ConstantExpressionEvaluator.evaluate(
+                    propertyDeclaration.getInitializer()!!,
+                    DelegatingBindingTrace(context, "trace for evaluating compile time constant"),
+                    property.getType()
+            )
             if (compileTimeConstant == null) {
                 "null"
             } else {

@@ -354,12 +354,10 @@ public class ConstantExpressionEvaluator private constructor(val trace: BindingT
         if (resolvedCall != null) {
             val callableDescriptor = resolvedCall.getResultingDescriptor()
             if (callableDescriptor is VariableDescriptor) {
-                val compileTimeInitializer = callableDescriptor.getCompileTimeInitializer() ?: return null
+                val variableInitializerInitializer = callableDescriptor.getCompileTimeInitializer() ?: return null
 
-                //TODO_R: just rewrap?
-                val value = compileTimeInitializer.getValue(expectedType ?: TypeUtils.NO_EXPECTED_TYPE)
                 return createConstant(
-                        value,
+                        variableInitializerInitializer.value,
                         expectedType,
                         CompileTimeConstant.Parameters.Impl(
                                 canBeUsedInAnnotation = isPropertyCompileTimeConstant(callableDescriptor),

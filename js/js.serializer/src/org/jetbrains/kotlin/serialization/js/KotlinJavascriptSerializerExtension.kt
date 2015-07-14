@@ -47,7 +47,7 @@ public object KotlinJavascriptSerializerExtension : SerializerExtension() {
             proto.addExtension(JsProtoBuf.callableAnnotation, annotationSerializer.serializeAnnotation(annotation, stringTable))
         }
         val propertyDescriptor = callable as? PropertyDescriptor ?: return
-        val constantInitializer = propertyDescriptor.getCompileTimeInitializer()?.constantValue
+        val constantInitializer = propertyDescriptor.getCompileTimeInitializer()
         if (constantInitializer != null && constantInitializer !is NullValue) {
             val type = constantInitializer.type
             proto.setExtension(JsProtoBuf.compileTimeValue, annotationSerializer.valueProto(constantInitializer, type, stringTable).build())

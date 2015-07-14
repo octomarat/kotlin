@@ -17,11 +17,10 @@
 package org.jetbrains.kotlin.load.java.structure
 
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
-import org.jetbrains.kotlin.resolve.constants.ConstantValueCompileTimeConstant
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 
 public interface JavaPropertyInitializerEvaluator {
-    public fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValueCompileTimeConstant<*>?
+    public fun getInitializerConstant(field: JavaField, descriptor: PropertyDescriptor): ConstantValue<*>?
 
     public fun isNotNullCompileTimeConstant(field: JavaField): Boolean
 
