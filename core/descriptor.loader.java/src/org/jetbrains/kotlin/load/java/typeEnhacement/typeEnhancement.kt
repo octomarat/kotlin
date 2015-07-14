@@ -97,7 +97,8 @@ private fun JetType.enhanceInflexible(qualifiers: (Int) -> JavaTypeQualifiers, i
     val (enhancedNullability, enhancedNullabilityAnnotations) = this.getEnhancedNullability(effectiveQualifiers, position)
     val newAnnotations = listOf(
             getAnnotations(),
-            enhancedMutabilityAnnotations, enhancedNullabilityAnnotations
+            enhancedMutabilityAnnotations,
+            enhancedNullabilityAnnotations
     ).filterNotNull().compositeAnnotationsOrSingle()
 
     val enhancedType = JetTypeImpl(
@@ -157,25 +158,27 @@ private fun JetType.getEnhancedNullability(qualifiers: JavaTypeQualifiers, posit
     }
 }
 
-private val ENHANCED_NULLABILITY_ANNOTATIONS = EnhancedFakeAnnotations(JvmAnnotationNames.ENHANCED_NULLABILITY_ANNOTATION)
-private val ENHANCED_MUTABILITY_ANNOTATIONS = EnhancedFakeAnnotations(JvmAnnotationNames.ENHANCED_MUTABILITY_ANNOTATION)
+private val ENHANCED_NULLABILITY_ANNOTATIONS = EnhancedTypeAnnotations(JvmAnnotationNames.ENHANCED_NULLABILITY_ANNOTATION)
+private val ENHANCED_MUTABILITY_ANNOTATIONS = EnhancedTypeAnnotations(JvmAnnotationNames.ENHANCED_MUTABILITY_ANNOTATION)
 
-private class EnhancedFakeAnnotations(private val fqNameToMatch: FqName) : Annotations {
+private class EnhancedTypeAnnotations(private val fqNameToMatch: FqName) : Annotations {
     override fun isEmpty() = false
 
     override fun findAnnotation(fqName: FqName) = when (fqName) {
-        fqNameToMatch -> FakeAnnotationDescriptor
+        fqNameToMatch -> EnhancedTypeAnnotationDescriptor
         else -> null
     }
 
     override fun findExternalAnnotation(fqName: FqName) = null
 
+    // Note, that this class may break Annotations contract (!isEmpty && iterator.isEmpty())
+    // It's a hack that we need unless we have stable "user data" in JetType
     override fun iterator(): Iterator<AnnotationDescriptor> = emptyList<AnnotationDescriptor>().iterator()
 }
 
-private object FakeAnnotationDescriptor : AnnotationDescriptor {
+private object EnhancedTypeAnnotationDescriptor : AnnotationDescriptor {
     private fun throwError() = error("No methods should be called on this descriptor. Only it's presence matters")
     override fun getType() = throwError()
     override fun getAllValueArguments() = throwError()
-    override fun toString() = throwError()
+    override fun toString() = "[EnhancedType]"
 }

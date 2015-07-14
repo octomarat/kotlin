@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.jvm.bindingContext
+package org.jetbrains.kotlin.jvm.bindingContextSlices
 
-import org.jetbrains.kotlin.jvm.BytecodeAssertionInfo
+import org.jetbrains.kotlin.jvm.RuntimeAssertionInfo
 import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.util.slicedMap.BasicWritableSlice
 import org.jetbrains.kotlin.util.slicedMap.RewritePolicy
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 import org.jetbrains.kotlin.utils.DO_NOTHING
 
-public val BYTECODE_ASSERTION_INFO: WritableSlice<JetExpression, BytecodeAssertionInfo> = BasicWritableSlice(RewritePolicy.DO_NOTHING)
+public val RUNTIME_ASSERTION_INFO: WritableSlice<JetExpression, RuntimeAssertionInfo> = BasicWritableSlice(RewritePolicy.DO_NOTHING)

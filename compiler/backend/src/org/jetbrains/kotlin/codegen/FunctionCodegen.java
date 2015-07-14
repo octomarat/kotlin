@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
-import org.jetbrains.kotlin.jvm.BytecodeAssertionInfo;
+import org.jetbrains.kotlin.jvm.RuntimeAssertionInfo;
 import org.jetbrains.kotlin.load.kotlin.nativeDeclarations.NativeDeclarationsPackage;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.psi.JetNamedFunction;
@@ -833,10 +833,10 @@ public class FunctionCodegen {
                         StackValue stackValue = AsmUtil.genNotNullAssertions(
                                 state,
                                 StackValue.onStack(delegateToMethod.getReturnType()),
-                                BytecodeAssertionInfo.create(
+                                RuntimeAssertionInfo.create(
                                         delegateFunction.getReturnType(),
                                         delegatedTo.getReturnType(),
-                                        new BytecodeAssertionInfo.DataFlowExtras.OnlyMessage(delegatedTo.getName() + "(...)")
+                                        new RuntimeAssertionInfo.DataFlowExtras.OnlyMessage(delegatedTo.getName() + "(...)")
                                 )
                         );
 

@@ -19,7 +19,7 @@ package org.jetbrains.kotlin.jvm
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames
-import org.jetbrains.kotlin.jvm.bindingContext.BYTECODE_ASSERTION_INFO
+import org.jetbrains.kotlin.jvm.bindingContextSlices.RUNTIME_ASSERTION_INFO
 import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.checkers.AdditionalTypeChecker
@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.types.checker.JetTypeChecker
 import org.jetbrains.kotlin.types.upperIfFlexible
 import kotlin.platform.platformStatic
 
-public class BytecodeAssertionInfo(public val needNotNullAssertion: Boolean, public val message: String) {
+public class RuntimeAssertionInfo(public val needNotNullAssertion: Boolean, public val message: String) {
     public interface DataFlowExtras {
         class OnlyMessage(message: String) : DataFlowExtras {
             override val canBeNull: Boolean get() = true
@@ -51,27 +51,31 @@ public class BytecodeAssertionInfo(public val needNotNullAssertion: Boolean, pub
                 expectedType: JetType,
                 expressionType: JetType,
                 dataFlowExtras: DataFlowExtras
-        ): BytecodeAssertionInfo? {
+        ): RuntimeAssertionInfo? {
             fun assertNotNull(): Boolean {
-                if (expectedType.isError()) return false
+                if (expectedType.isError() || expressionType.isError()) return false
+
                 // T : Any, T! = T..T?
                 // Let T$ will be copy of T! with enhanced nullability.
-                // Cases when nullability approximation needed: T! -> T, T$ -> T
+                // Cases when nullability assertion needed: T! -> T, T$ -> T
 
                 // Expected type either T?, T! or T$
                 if (TypeUtils.isNullableType(expectedType) || expectedType.hasEnhancedNullability()) return false
 
-                // Approximated type is not nullable and not enhanced (neither T?, T! or T$)
+                // Expression type is not nullable and not enhanced (neither T?, T! or T$)
                 val isExpressionTypeNullable = TypeUtils.isNullableType(expressionType)
                 if (!isExpressionTypeNullable && !expressionType.hasEnhancedNullability()) return false
 
-                // Smart-casted T! or T?
+                // Smart-cast T! or T?
                 if (!dataFlowExtras.canBeNull && isExpressionTypeNullable) return false
 
                 return true
             }
 
-            return (if (assertNotNull()) BytecodeAssertionInfo(needNotNullAssertion = true, message = dataFlowExtras.presentableText) else null)
+            return if (assertNotNull())
+                RuntimeAssertionInfo(needNotNullAssertion = true, message = dataFlowExtras.presentableText)
+            else
+                null
         }
 
         private fun JetType.hasEnhancedNullability()
@@ -79,14 +83,14 @@ public class BytecodeAssertionInfo(public val needNotNullAssertion: Boolean, pub
     }
 }
 
-public object BytecodeAssertionsTypeChecker : AdditionalTypeChecker {
+public object RuntimeAssertionsTypeChecker : AdditionalTypeChecker {
     override fun checkType(expression: JetExpression, expressionType: JetType, c: ResolutionContext<*>) {
         if (TypeUtils.noExpectedType(c.expectedType)) return
 
-        val assertionInfo = BytecodeAssertionInfo.create(
+        val assertionInfo = RuntimeAssertionInfo.create(
                 c.expectedType,
                 expressionType,
-                object : BytecodeAssertionInfo.DataFlowExtras {
+                object : RuntimeAssertionInfo.DataFlowExtras {
                     override val canBeNull: Boolean
                         get() = c.dataFlowInfo.getNullability(dataFlowValue).canBeNull()
                     override val possibleTypes: Set<JetType>
@@ -99,7 +103,7 @@ public object BytecodeAssertionsTypeChecker : AdditionalTypeChecker {
         )
 
         if (assertionInfo != null) {
-            c.trace.record(BYTECODE_ASSERTION_INFO, expression, assertionInfo)
+            c.trace.record(RUNTIME_ASSERTION_INFO, expression, assertionInfo)
         }
     }
 

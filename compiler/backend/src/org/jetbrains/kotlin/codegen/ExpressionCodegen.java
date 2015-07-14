@@ -49,12 +49,12 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.impl.ScriptCodeDescriptor;
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils;
 import org.jetbrains.kotlin.diagnostics.Errors;
-import org.jetbrains.kotlin.jvm.bindingContext.BindingContextPackage;
+import org.jetbrains.kotlin.jvm.bindingContextSlices.BindingContextSlicesPackage;
 import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor;
 import org.jetbrains.kotlin.load.java.descriptors.SamConstructorDescriptor;
-import org.jetbrains.kotlin.jvm.BytecodeAssertionInfo;
+import org.jetbrains.kotlin.jvm.RuntimeAssertionInfo;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
@@ -281,12 +281,12 @@ public class ExpressionCodegen extends JetVisitor<StackValue, StackValue> implem
 
             StackValue stackValue = selector.accept(visitor, receiver);
 
-            BytecodeAssertionInfo bytecodeAssertionInfo = null;
+            RuntimeAssertionInfo runtimeAssertionInfo = null;
             if (selector instanceof JetExpression) {
-                bytecodeAssertionInfo = bindingContext.get(BindingContextPackage.getBYTECODE_ASSERTION_INFO(), (JetExpression) selector);
+                runtimeAssertionInfo = bindingContext.get(BindingContextSlicesPackage.getRUNTIME_ASSERTION_INFO(), (JetExpression) selector);
             }
 
-            return genNotNullAssertions(state, stackValue, bytecodeAssertionInfo);
+            return genNotNullAssertions(state, stackValue, runtimeAssertionInfo);
         }
         catch (ProcessCanceledException e) {
             throw e;
