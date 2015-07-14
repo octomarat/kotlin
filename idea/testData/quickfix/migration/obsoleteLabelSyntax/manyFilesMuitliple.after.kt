@@ -29,7 +29,6 @@
 // ERROR: The label '@loop3' does not denote a loop
 // ERROR: The label '@loop4' does not denote a loop
 // ERROR: The label '@loop5' does not denote a loop
-// ERROR: This annotation is not applicable to target 'expression'
 
 fun run(block: () -> Unit) = block()
 
