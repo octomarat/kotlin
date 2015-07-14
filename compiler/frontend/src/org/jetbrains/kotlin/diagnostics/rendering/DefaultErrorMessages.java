@@ -137,6 +137,7 @@ public class DefaultErrorMessages {
         MAP.put(REPEATED_MODIFIER, "Repeated ''{0}''", TO_STRING);
         MAP.put(INAPPLICABLE_ANNOTATION, "This annotation is only applicable to top level functions");
         MAP.put(INAPPLICABLE_PLATFORM_NAME, "platformName annotation is not applicable to this declaration");
+        MAP.put(WRONG_ANNOTATION_TARGET, "This annotation is not applicable to target ''{0}''", TO_STRING);
 
         MAP.put(REDUNDANT_MODIFIER, "Modifier ''{0}'' is redundant because ''{1}'' is present", TO_STRING, TO_STRING);
         MAP.put(ABSTRACT_MODIFIER_IN_TRAIT, "Modifier ''abstract'' is redundant in interface");
@@ -613,7 +614,6 @@ public class DefaultErrorMessages {
         MAP.put(ANNOTATION_CLASS_WITH_BODY, "Body is not allowed for annotation class");
         MAP.put(INVALID_TYPE_OF_ANNOTATION_MEMBER, "Invalid type of annotation member");
         MAP.put(NULLABLE_TYPE_OF_ANNOTATION_MEMBER, "An annotation parameter cannot be nullable");
-        MAP.put(ILLEGAL_ANNOTATION_KEYWORD, "''annotation'' keyword is only applicable for class");
         MAP.put(ANNOTATION_PARAMETER_MUST_BE_CONST, "An annotation parameter must be a compile-time constant");
         MAP.put(ANNOTATION_PARAMETER_MUST_BE_ENUM_CONST, "An enum annotation parameter must be a enum constant");
         MAP.put(ANNOTATION_PARAMETER_MUST_BE_KCLASS_LITERAL, "An annotation parameter must be a class literal (T::class)");
