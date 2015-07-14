@@ -256,7 +256,7 @@ public class ExpressionTypingUtils {
                 ArgumentTypeResolver.updateNumberType(expressionType, expression, context);
             }
             else {
-                expressionType = integerValueTypeConstant.getType();
+                expressionType = integerValueTypeConstant.getUnknownIntegerType();
             }
         }
         else {

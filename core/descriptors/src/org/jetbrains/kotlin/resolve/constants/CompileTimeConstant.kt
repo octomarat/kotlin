@@ -93,8 +93,7 @@ public class IntegerValueTypeConstant(
         return ConstantValueCompileTimeConstant(constantValue, parameters)
     }
 
-    //TODO_R: rename to smth scary
-    val type = JetTypeImpl(
+    val unknownIntegerType = JetTypeImpl(
             Annotations.EMPTY, typeConstructor, false, emptyList<TypeProjection>(),
             ErrorUtils.createErrorScope("Scope for number value type (" + typeConstructor.toString() + ")", true)
     )
