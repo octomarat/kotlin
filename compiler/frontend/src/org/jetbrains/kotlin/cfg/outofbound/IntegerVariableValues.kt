@@ -16,17 +16,17 @@ public sealed class IntegerVariableValues {
     public open fun minus(): IntegerVariableValues = IntegerVariableValues.Undefined
 
     // special operators (IntegerValues, IntegerValues) -> BooleanVariableValue
-    public open fun eq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun eq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun notEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun notEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun lessThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun lessThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun greaterThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun greaterThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun greaterOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun greaterOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun lessOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?, valuesData: ValuesData.Defined)
+    public open fun lessOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
 
     // Represents a value of Integer variable that is not initialized
@@ -176,101 +176,111 @@ public sealed class IntegerVariableValues {
 
         override fun eq(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
-        ): BooleanVariableValue =
-                applyComparisonIfArgsAreAppropriate(other, valuesData) { valueToCompareWith ->
-                    thisVarDescriptor?.let {
-                        val thisValues = HashSet(values)
-                        val onTrueValues = if (thisValues.contains(valueToCompareWith)) setOf(valueToCompareWith) else setOf()
-                        thisValues.remove(valueToCompareWith)
-                        if (this.allPossibleValuesKnown) {
-                            if (onTrueValues.isEmpty()) {
-                                return@applyComparisonIfArgsAreAppropriate BooleanVariableValue.False
-                            }
-                            else if (thisValues.isEmpty()) {
-                                return@applyComparisonIfArgsAreAppropriate BooleanVariableValue.True
-                            }
-                        }
-                        BooleanVariableValue.Undefined(
-                                Restrictions.Specific.create(mapOf(it to onTrueValues)),
-                                Restrictions.Specific.create(mapOf(it to thisValues))
-                        )
-                    } ?: BooleanVariableValue.Undefined.WITH_FULL_RESTRICTIONS
+                thisVarDescriptor: VariableDescriptor?
+        ): BooleanVariableValue {
+            // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
+            if (other is Defined && other.values.size() == 1) {
+                val valueToCompareWith = other.values.single()
+                val thisValues = HashSet(values)
+                val onTrueValues = if (thisValues.contains(valueToCompareWith)) setOf(valueToCompareWith) else setOf()
+                thisValues.remove(valueToCompareWith)
+                if (this.allPossibleValuesKnown) {
+                    if (onTrueValues.isEmpty()) {
+                        return BooleanVariableValue.False
+                    }
+                    else if (thisValues.isEmpty()) {
+                        return BooleanVariableValue.True
+                    }
                 }
+                return thisVarDescriptor?.let {
+                    BooleanVariableValue.Undefined(
+                            Restrictions.Specific.create(mapOf(it to onTrueValues)),
+                            Restrictions.Specific.create(mapOf(it to thisValues))
+                    )
+                } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
+            }
+            else return applyFullRestrictionsOnThisValuesIfPossible(thisVarDescriptor)
+        }
 
         override fun notEq(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
+                thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(eq(other, thisVarDescriptor, valuesData))
+                applyNot(eq(other, thisVarDescriptor))
 
         override fun lessThan(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
+                thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyComparisonIfArgsAreAppropriate(other, valuesData) { valueToCompareWith ->
-                    comparison(valueToCompareWith, { array, value -> array.indexOfFirst { it >= value } },
-                               { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
-                                   if (this.allPossibleValuesKnown) {
-                                       if (valuesWithLessIndices.isEmpty()) {
-                                           return@comparison BooleanVariableValue.False
-                                       }
-                                       else if (valuesWithGreaterOrEqIndices.isEmpty()) {
-                                           return@comparison BooleanVariableValue.True
-                                       }
-                                   }
-                                   return@comparison thisVarDescriptor?.let {
-                                       BooleanVariableValue.Undefined(
-                                               Restrictions.Specific.create(mapOf(it to valuesWithLessIndices)),
-                                               Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices))
-                                       )
-                                   } ?: BooleanVariableValue.Undefined.WITH_FULL_RESTRICTIONS
-                               }
-                    )
-                }
+                // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
+                if (other is Defined && other.values.size() == 1) comparison(
+                        other.values.single(),
+                        { array, value -> array.indexOfFirst { it >= value } },
+                        { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
+                            if (this.allPossibleValuesKnown) {
+                                if (valuesWithLessIndices.isEmpty()) {
+                                    return@comparison BooleanVariableValue.False
+                                }
+                                else if (valuesWithGreaterOrEqIndices.isEmpty()) {
+                                    return@comparison BooleanVariableValue.True
+                                }
+                            }
+                            return@comparison thisVarDescriptor?.let {
+                                BooleanVariableValue.Undefined(
+                                        Restrictions.Specific.create(mapOf(it to valuesWithLessIndices)),
+                                        Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices))
+                                )
+                            } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
+                        }
+                )
+                else applyFullRestrictionsOnThisValuesIfPossible(thisVarDescriptor)
 
         override fun greaterThan(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
+                thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyComparisonIfArgsAreAppropriate(other, valuesData) { valueToCompareWith ->
-                    comparison(valueToCompareWith, { array, value -> array.indexOfFirst { it > value } },
-                               { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
-                                   if (this.allPossibleValuesKnown) {
-                                       if (valuesWithLessIndices.isEmpty()) {
-                                           return@comparison BooleanVariableValue.True
-                                       }
-                                       else if (valuesWithGreaterOrEqIndices.isEmpty()) {
-                                           return@comparison BooleanVariableValue.False
-                                       }
-                                   }
-                                   return@comparison thisVarDescriptor?.let {
-                                       BooleanVariableValue.Undefined(
-                                               Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices)),
-                                               Restrictions.Specific.create(mapOf(it to valuesWithLessIndices))
-                                       )
-                                   } ?: BooleanVariableValue.Undefined.WITH_FULL_RESTRICTIONS
-                               }
-                    )
-                }
+                // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
+                if (other is Defined && other.values.size() == 1) comparison(
+                        other.values.single(),
+                        { array, value -> array.indexOfFirst { it > value } },
+                        { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
+                            if (this.allPossibleValuesKnown) {
+                                if (valuesWithLessIndices.isEmpty()) {
+                                    return@comparison BooleanVariableValue.True
+                                }
+                                else if (valuesWithGreaterOrEqIndices.isEmpty()) {
+                                    return@comparison BooleanVariableValue.False
+                                }
+                            }
+                            return@comparison thisVarDescriptor?.let {
+                                BooleanVariableValue.Undefined(
+                                        Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices)),
+                                        Restrictions.Specific.create(mapOf(it to valuesWithLessIndices))
+                                )
+                            } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
+                        }
+                )
+                else applyFullRestrictionsOnThisValuesIfPossible(thisVarDescriptor)
+
+        private fun applyFullRestrictionsOnThisValuesIfPossible(thisVarDescriptor: VariableDescriptor?) =
+            thisVarDescriptor?.let {
+                BooleanVariableValue.Undefined(
+                        Restrictions.Specific.create(mapOf(it to setOf())),
+                        Restrictions.Specific.create(mapOf(it to setOf()))
+                )
+            } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
 
         override fun greaterOrEq(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
+                thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(lessThan(other, thisVarDescriptor, valuesData))
+                applyNot(lessThan(other, thisVarDescriptor))
 
         override fun lessOrEq(
                 other: IntegerVariableValues,
-                thisVarDescriptor: VariableDescriptor?,
-                valuesData: ValuesData.Defined
+                thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(greaterThan(other, thisVarDescriptor, valuesData))
+                applyNot(greaterThan(other, thisVarDescriptor))
 
         private fun comparison(
                 otherValue: Int,
@@ -284,18 +294,6 @@ public sealed class IntegerVariableValues {
             val valuesWithLessIndices = thisArray.copyOfRange(0, bound).toSet()
             val valuesWithGreaterOrEqIndices = thisArray.copyOfRange(bound, thisArray.size()).toSet()
             return createBoolean(valuesWithLessIndices, valuesWithGreaterOrEqIndices)
-        }
-
-        private fun applyComparisonIfArgsAreAppropriate(
-                other: IntegerVariableValues,
-                valuesData: ValuesData.Defined,
-                comparison: (Int) -> BooleanVariableValue
-        ): BooleanVariableValue {
-            if (other !is Defined || other.values.size() > 1) {
-                // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
-                return BooleanVariableValue.Undefined.WITH_FULL_RESTRICTIONS
-            }
-            return comparison(other.values.single())
         }
 
         private fun applyNot(booleanValue: BooleanVariableValue): BooleanVariableValue =

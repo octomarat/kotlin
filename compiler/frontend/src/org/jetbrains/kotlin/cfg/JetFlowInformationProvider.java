@@ -92,7 +92,11 @@ public class JetFlowInformationProvider {
         this.subroutine = declaration;
         this.trace = trace;
         this.pseudocode = pseudocode;
-        this.variableValuesBasedChecker = new VariableValuesBasedChecker(
+        this.variableValuesBasedChecker = initChecker();
+    }
+
+    private VariableValuesBasedChecker initChecker() {
+        return new VariableValuesBasedChecker(
                 pseudocode, trace,
                 new Function3<Diagnostic, Instruction, HashMap<Instruction, DiagnosticFactory<?>>, Unit>() {
                     @Override

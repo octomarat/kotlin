@@ -20,8 +20,8 @@ import org.jetbrains.kotlin.descriptors.VariableDescriptor
 
 public sealed class BooleanVariableValue {
     // Logic operators, (BoolVariableValue, BoolVariableValue) -> BoolVariableValue
-    public abstract fun and(other: BooleanVariableValue?): BooleanVariableValue
-    public abstract fun or(other: BooleanVariableValue?): BooleanVariableValue
+    public abstract fun and(other: BooleanVariableValue): BooleanVariableValue
+    public abstract fun or(other: BooleanVariableValue): BooleanVariableValue
     public abstract fun not(): BooleanVariableValue
 
     public abstract fun merge(other: BooleanVariableValue): BooleanVariableValue
@@ -34,38 +34,34 @@ public sealed class BooleanVariableValue {
     public object True : BooleanVariableValue() {
         override fun toString(): String = "T"
 
-        override fun and(other: BooleanVariableValue?): BooleanVariableValue =
-            when (other) {
-                True -> True
-                else -> other?.copy() ?: Undefined.WITH_NO_RESTRICTIONS
-            }
+        override fun and(other: BooleanVariableValue): BooleanVariableValue = other.copy()
 
-        override fun or(other: BooleanVariableValue?): BooleanVariableValue = True
+        override fun or(other: BooleanVariableValue): BooleanVariableValue = True
 
         override fun not(): BooleanVariableValue = False
 
         override fun merge(other: BooleanVariableValue): BooleanVariableValue =
                 when (other) {
-                    False -> Undefined.WITH_FULL_RESTRICTIONS
                     True -> True
-                    is Undefined -> Undefined(other.onTrueRestrictions, Restrictions.Full)
+                    False -> Undefined.WITH_NO_RESTRICTIONS
+                    is Undefined -> Undefined(Restrictions.Empty, other.onFalseRestrictions)
                 }
     }
 
     public object False : BooleanVariableValue() {
         override fun toString(): String = "F"
 
-        override fun and(other: BooleanVariableValue?): BooleanVariableValue = False
+        override fun and(other: BooleanVariableValue): BooleanVariableValue = False
 
-        override fun or(other: BooleanVariableValue?): BooleanVariableValue = other?.copy() ?: Undefined.WITH_NO_RESTRICTIONS
+        override fun or(other: BooleanVariableValue): BooleanVariableValue = other.copy()
 
         override fun not(): BooleanVariableValue = True
 
         override fun merge(other: BooleanVariableValue): BooleanVariableValue =
                 when (other) {
+                    True -> Undefined.WITH_NO_RESTRICTIONS
                     False -> False
-                    True -> Undefined.WITH_FULL_RESTRICTIONS
-                    is Undefined -> Undefined(Restrictions.Full, other.onFalseRestrictions)
+                    is Undefined -> Undefined(other.onTrueRestrictions, Restrictions.Empty)
                 }
     }
 
@@ -75,9 +71,8 @@ public sealed class BooleanVariableValue {
     ): BooleanVariableValue() {
         override fun toString(): String = "U${onTrueRestrictions.toString()}${onFalseRestrictions.toString()}"
 
-        override fun and(other: BooleanVariableValue?): BooleanVariableValue =
+        override fun and(other: BooleanVariableValue): BooleanVariableValue =
                 when(other) {
-                    null -> Undefined.WITH_NO_RESTRICTIONS
                     True -> this.copy()
                     False -> False
                     is Undefined -> Undefined(
@@ -86,9 +81,8 @@ public sealed class BooleanVariableValue {
                     )
                 }
 
-        override fun or(other: BooleanVariableValue?): BooleanVariableValue =
+        override fun or(other: BooleanVariableValue): BooleanVariableValue =
                 when(other) {
-                    null -> Undefined.WITH_NO_RESTRICTIONS
                     True -> True
                     False -> this.copy()
                     is Undefined -> Undefined(
@@ -101,14 +95,16 @@ public sealed class BooleanVariableValue {
 
         override fun merge(other: BooleanVariableValue): BooleanVariableValue =
                 when (other) {
-                    False -> Undefined(Restrictions.Full, this.onFalseRestrictions)
-                    True -> Undefined(this.onTrueRestrictions, Restrictions.Full)
-                    is Undefined -> this.or(other)
+                    True -> Undefined(Restrictions.Empty, this.onFalseRestrictions)
+                    False -> Undefined(this.onTrueRestrictions, Restrictions.Empty)
+                    is Undefined -> Undefined(
+                            this.onTrueRestrictions.mergeInTruePosition(other.onTrueRestrictions),
+                            this.onFalseRestrictions.mergeInFalsePosition(other.onFalseRestrictions)
+                    )
                 }
 
         companion object {
             public val WITH_NO_RESTRICTIONS: Undefined = Undefined(Restrictions.Empty, Restrictions.Empty)
-            public val WITH_FULL_RESTRICTIONS: Undefined = Undefined(Restrictions.Full, Restrictions.Full)
         }
     }
 
@@ -120,31 +116,26 @@ public sealed class BooleanVariableValue {
 public sealed class Restrictions {
     public abstract fun andInTruePosition(other: Restrictions): Restrictions
     public abstract fun andInFalsePosition(other: Restrictions): Restrictions
+
     public abstract fun orInTruePosition(other: Restrictions): Restrictions
     public abstract fun orInFalsePosition(other: Restrictions): Restrictions
+
+    public abstract fun mergeInTruePosition(other: Restrictions): Restrictions
+    public abstract fun mergeInFalsePosition(other: Restrictions): Restrictions
 
     public object Empty : Restrictions() {
         override fun toString(): String = "{}"
 
         override fun andInTruePosition(other: Restrictions): Restrictions = other
-
         override fun andInFalsePosition(other: Restrictions): Restrictions = Empty
 
-        override fun orInTruePosition(other: Restrictions): Restrictions = andInFalsePosition(other)
+        override fun orInTruePosition(other: Restrictions): Restrictions = Empty
+        override fun orInFalsePosition(other: Restrictions): Restrictions = other
 
-        override fun orInFalsePosition(other: Restrictions): Restrictions = andInTruePosition(other)
+        override fun mergeInTruePosition(other: Restrictions): Restrictions = Empty
+        override fun mergeInFalsePosition(other: Restrictions): Restrictions = Empty
     }
-    public object Full : Restrictions() {
-        override fun toString(): String = "{full}"
 
-        override fun andInTruePosition(other: Restrictions): Restrictions = Full
-
-        override fun andInFalsePosition(other: Restrictions): Restrictions = other
-
-        override fun orInTruePosition(other: Restrictions): Restrictions = andInFalsePosition(other)
-
-        override fun orInFalsePosition(other: Restrictions): Restrictions = andInTruePosition(other)
-    }
     public data class Specific protected constructor(val values: Map<VariableDescriptor, Set<Int>>) : Restrictions() {
         override fun toString(): String {
             val descriptorToString: (VariableDescriptor) -> String = { it.name.asString() }
@@ -154,21 +145,21 @@ public sealed class Restrictions {
 
         override fun andInTruePosition(other: Restrictions): Restrictions =
                 when (other) {
-                    is Specific -> Specific(MapUtils.mergeMaps(this.values, other.values) { v1, v2 -> v1 intersect v2 })
                     Empty -> this
-                    Full -> Full
+                    is Specific -> Specific(MapUtils.intersectMaps(this.values, other.values) { v1, v2 -> v1 intersect v2 })
                 }
 
         override fun andInFalsePosition(other: Restrictions): Restrictions =
                 when (other) {
-                    is Specific -> Specific(MapUtils.mergeMaps(this.values, other.values) { v1, v2 -> v1 union v2 })
                     Empty -> Empty
-                    Full -> this
+                    is Specific -> Specific(MapUtils.unionMaps(this.values, other.values) { v1, v2 -> v1 union v2 })
                 }
 
         override fun orInTruePosition(other: Restrictions): Restrictions = andInFalsePosition(other)
-
         override fun orInFalsePosition(other: Restrictions): Restrictions = andInTruePosition(other)
+
+        override fun mergeInTruePosition(other: Restrictions): Restrictions = andInFalsePosition(other)
+        override fun mergeInFalsePosition(other: Restrictions): Restrictions = andInFalsePosition(other)
 
         companion object {
             public fun create(values: Map<VariableDescriptor, Set<Int>>): Restrictions =

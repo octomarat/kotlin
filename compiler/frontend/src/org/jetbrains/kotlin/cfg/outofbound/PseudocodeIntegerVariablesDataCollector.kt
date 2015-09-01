@@ -407,10 +407,6 @@ public class PseudocodeIntegerVariablesDataCollector(val pseudocode: Pseudocode,
                 fun processUndefinedCase(edgeData: ValuesData.Defined, restrictions: Restrictions) {
                     when (restrictions) {
                         Restrictions.Empty -> Unit // no need to apply any restrictions
-                        Restrictions.Full -> {
-                            edgeData.intVarsToValues.keySet().forEach { edgeData.intVarsToValues[it] = IntegerVariableValues.Undefined }
-                            edgeData.collectionsToSizes.keySet().forEach { edgeData.collectionsToSizes[it] = IntegerVariableValues.Undefined }
-                        }
                         is Restrictions.Specific -> {
                             for ((variable, unrestrictedValues) in restrictions.values) {
                                 val (values, sourceCollection) =
@@ -713,12 +709,15 @@ public class PseudocodeIntegerVariablesDataCollector(val pseudocode: Pseudocode,
                 operandsMap: MutableMap<PseudoValue, BooleanVariableValue>,
                 resultMap: MutableMap<PseudoValue, R>,
                 valueToUseIfNoFirstOperand: R,
-                operation: (BooleanVariableValue, BooleanVariableValue?) -> R
+                operation: (BooleanVariableValue, BooleanVariableValue) -> R
         ) {
             val leftOperandValues = operandsMap[leftOperandVariable]
             val rightOperandValues = operandsMap[rightOperandVariable]
             if (leftOperandValues != null) {
-                resultMap[resultVariable] = operation(leftOperandValues, rightOperandValues)
+                resultMap[resultVariable] = operation(
+                        leftOperandValues,
+                        rightOperandValues ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
+                )
             }
             else {
                 resultMap[resultVariable] = valueToUseIfNoFirstOperand
@@ -730,39 +729,51 @@ public class PseudocodeIntegerVariablesDataCollector(val pseudocode: Pseudocode,
         fun intBoolOperation(operation: (IntegerVariableValues, IntegerVariableValues) -> BooleanVariableValue) =
                 performIntOperation(updatedData.intFakeVarsToValues, updatedData.boolFakeVarsToValues,
                                     BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS, operation)
-        fun boolBoolOperation(operation: (BooleanVariableValue, BooleanVariableValue?) -> BooleanVariableValue) =
+        fun boolBoolOperation(operation: (BooleanVariableValue, BooleanVariableValue) -> BooleanVariableValue) =
                 performBoolOperation(updatedData.boolFakeVarsToValues, updatedData.boolFakeVarsToValues,
                                      BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS, operation)
-        val leftOperandDescriptor = leftOperandVariable.createdAt?.let {
-            val instructionWithDescriptor = getCollectionReadInstructionIfIsSizeMethodCall(it) ?: it
-            PseudocodeUtil.extractVariableDescriptorIfAny(instructionWithDescriptor, false, bindingContext)
-        }
+        val leftOperandDescriptor = tryExtractLeftOperandDescriptor(leftOperandVariable)
         when (token) {
             JetTokens.PLUS -> intIntOperation { x, y -> x + y }
             JetTokens.MINUS -> intIntOperation { x, y -> x - y }
             JetTokens.MUL -> intIntOperation { x, y -> x * y }
             JetTokens.DIV -> intIntOperation { x, y -> x / y }
             JetTokens.RANGE -> intIntOperation { x, y -> x .. y }
-            JetTokens.EQEQ -> intBoolOperation { x, y -> x.eq(y, leftOperandDescriptor, updatedData) }
-            JetTokens.EXCLEQ -> intBoolOperation { x, y -> x.notEq(y, leftOperandDescriptor, updatedData) }
-            JetTokens.LT -> intBoolOperation { x, y ->  x.lessThan(y, leftOperandDescriptor, updatedData) }
-            JetTokens.GT -> intBoolOperation { x, y -> x.greaterThan(y, leftOperandDescriptor, updatedData) }
-            JetTokens.LTEQ -> intBoolOperation { x, y -> x.lessOrEq(y, leftOperandDescriptor, updatedData) }
-            JetTokens.GTEQ -> intBoolOperation { x, y -> x.greaterOrEq(y, leftOperandDescriptor, updatedData) }
+            JetTokens.EQEQ -> intBoolOperation { x, y -> x.eq(y, leftOperandDescriptor) }
+            JetTokens.EXCLEQ -> intBoolOperation { x, y -> x.notEq(y, leftOperandDescriptor) }
+            JetTokens.LT -> intBoolOperation { x, y ->  x.lessThan(y, leftOperandDescriptor) }
+            JetTokens.GT -> intBoolOperation { x, y -> x.greaterThan(y, leftOperandDescriptor) }
+            JetTokens.LTEQ -> intBoolOperation { x, y -> x.lessOrEq(y, leftOperandDescriptor) }
+            JetTokens.GTEQ -> intBoolOperation { x, y -> x.greaterOrEq(y, leftOperandDescriptor) }
             JetTokens.OROR -> boolBoolOperation { x, y -> x.or(y) }
             JetTokens.ANDAND -> boolBoolOperation { x, y -> x.and(y) }
         }
     }
 
-    private fun getCollectionReadInstructionIfIsSizeMethodCall(instruction: Instruction): Instruction? {
-        if (instruction is CallInstruction && !instruction.inputValues.isEmpty()) {
-            val pseudoAnnotation = CallInstructionUtils.tryExtractPseudoAnnotationForCollector(instruction) ?: return null
-            if (pseudoAnnotation is PseudoAnnotation.SizeMethod) {
-                return instruction.inputValues.first().createdAt
+    private fun tryExtractLeftOperandDescriptor(leftOperandVariable: PseudoValue): VariableDescriptor? =
+            tryExtractVariableDescriptorFromSizeMethodCall(leftOperandVariable) ?:
+            tryExtractVariableDescriptorFromReadValue(leftOperandVariable)
+
+    private fun tryExtractVariableDescriptorFromSizeMethodCall(pseudoValue: PseudoValue): VariableDescriptor? =
+            pseudoValue.createdAt?.let { sourceInstruction ->
+                if (sourceInstruction is CallInstruction && !sourceInstruction.inputValues.isEmpty()) {
+                    CallInstructionUtils.tryExtractPseudoAnnotationForCollector(sourceInstruction)?.let {
+                        if (it is PseudoAnnotation.SizeMethod) {
+                            val firstArgument = sourceInstruction.inputValues.first()
+                            tryExtractVariableDescriptorFromReadValue(firstArgument)
+                        }
+                        else null
+                    } ?: null
+                }
+                else null
             }
-        }
-        return null
-    }
+
+    private fun tryExtractVariableDescriptorFromReadValue(pseudoValue: PseudoValue): VariableDescriptor? =
+            pseudoValue.createdAt?.let {
+                if (it is ReadValueInstruction && it.element is JetNameReferenceExpression)
+                    PseudocodeUtil.extractVariableDescriptorIfAny(it, false, bindingContext)
+                else null
+            }
 
     private fun processUnaryOperation(operationToken: IElementType, instruction: CallInstruction, updatedData: ValuesData.Defined) {
         if(instruction.inputValues.size() < 1) {

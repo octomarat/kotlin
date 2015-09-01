@@ -45,41 +45,23 @@ public class VariableValuesBasedChecker(
     // Checks if there are out-of-bound-access errors in the `pseudocode` and reports them using `report` function.
     // Throws IllegalStateException if there is no variable values data available
     public fun checkOutOfBoundErrors() {
-        if (variableValuesData != null) {
-            val reportedDiagnosticMap = Maps.newHashMap<Instruction, DiagnosticFactory<*>>()
-            pseudocode.traverse(TraversalOrder.FORWARD, variableValuesData, { instruction, inData: ValuesData, outData: ValuesData ->
-                if (instruction is CallInstruction) {
-                    val pseudoAnnotation = CallInstructionUtils.tryExtractPseudoAnnotationForAccess(instruction)
-                    if (pseudoAnnotation != null) {
-                        checkOutOfBoundAccess(instruction, inData, reportedDiagnosticMap)
-                    }
-                }
-            })
-        }
-        else throw IllegalStateException("No values info, checks cannot be performed")
+        if (variableValuesData != null)
+            runOutOfBoundAccessChecks(variableValuesData)
+        else throw IllegalStateException("No values info for out-of-bound analysis, checks cannot be performed")
     }
 
     // Returns `true` if the passed `instruction` is unreachable according to variable values analysis.
     // Throws IllegalStateException if there is no variable values data available
     public fun isUnreachableAccordingValueAnalysis(instruction: Instruction): Boolean =
-        if (variableValuesData != null)
-            variableValuesData[instruction]?.incoming is ValuesData.Dead
-        else throw IllegalStateException("No values info, checks cannot be performed")
+            if (variableValuesData != null)
+                variableValuesData[instruction]?.incoming is ValuesData.Dead
+            else throw IllegalStateException("No values info for unreachable code analysis, checks cannot be performed")
 
     // Checks if there are out-of-bound-access errors in the `pseudocode` and reports them using `report` function.
     // and does nothing if there is no variable values data available
     public fun tryCheckOutOfBoundErrors() {
-        if (variableValuesData != null) {
-            val reportedDiagnosticMap = Maps.newHashMap<Instruction, DiagnosticFactory<*>>()
-            pseudocode.traverse(TraversalOrder.FORWARD, variableValuesData, { instruction, inData: ValuesData, outData: ValuesData ->
-                if (instruction is CallInstruction) {
-                    val pseudoAnnotation = CallInstructionUtils.tryExtractPseudoAnnotationForAccess(instruction)
-                    if (pseudoAnnotation != null) {
-                        checkOutOfBoundAccess(instruction, inData, reportedDiagnosticMap)
-                    }
-                }
-            })
-        }
+        if (variableValuesData != null)
+            runOutOfBoundAccessChecks(variableValuesData)
     }
 
     // Returns `true` if the passed `instruction` is unreachable according to variable values analysis
@@ -88,6 +70,18 @@ public class VariableValuesBasedChecker(
             if (variableValuesData != null)
                 variableValuesData[instruction]?.incoming is ValuesData.Dead
             else false
+
+    private fun runOutOfBoundAccessChecks(variableValuesData: Map<Instruction, Edges<ValuesData>>) {
+        val reportedDiagnosticMap = Maps.newHashMap<Instruction, DiagnosticFactory<*>>()
+        pseudocode.traverse(TraversalOrder.FORWARD, variableValuesData, { instruction, inData: ValuesData, outData: ValuesData ->
+            if (instruction is CallInstruction) {
+                val pseudoAnnotation = CallInstructionUtils.tryExtractPseudoAnnotationForAccess(instruction)
+                if (pseudoAnnotation != null) {
+                    checkOutOfBoundAccess(instruction, inData, reportedDiagnosticMap)
+                }
+            }
+        })
+    }
 
     private fun checkOutOfBoundAccess(
             instruction: CallInstruction,

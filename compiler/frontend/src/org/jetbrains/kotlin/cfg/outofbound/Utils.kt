@@ -46,16 +46,27 @@ public object MapUtils {
         return "{$mapAsString}"
     }
 
-    public fun mergeMaps<K, V>(
+    public fun intersectMaps<K, V>(
             map1: Map<K, V>,
             map2: Map<K, V>,
-            mergeCorrespondingValue: (V, V) -> V
+            intersectCorrespondingValues: (V, V) -> V
     ): Map<K, V> {
         val resultMap = HashMap(map1)
         for ((key2, value2) in map2) {
             val value1 = resultMap[key2]
-            resultMap[key2] = value1?.let { mergeCorrespondingValue(it, value2) } ?: value2
+            resultMap[key2] = value1?.let { intersectCorrespondingValues(it, value2) } ?: value2
         }
+        return resultMap
+    }
+
+    public fun unionMaps<K, V>(
+            map1: Map<K, V>,
+            map2: Map<K, V>,
+            unionCorrespondingValues: (V, V) -> V
+    ): Map<K, V> {
+        val keys = map1.keySet() intersect map2.keySet()
+        val resultMap = hashMapOf<K, V>()
+        keys.forEach { resultMap[it] = unionCorrespondingValues(map1[it] as V, map2[it] as V) }
         return resultMap
     }
 
