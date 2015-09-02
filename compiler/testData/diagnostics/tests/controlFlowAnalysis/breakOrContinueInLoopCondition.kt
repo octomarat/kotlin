@@ -28,7 +28,7 @@ fun test2(b: Boolean) {
     }
 
     for (i in 1..10) {
-        for (j in if (true) 1..10 else continue) {
+        for (j in if (b) 1..10 else continue) {
         }
     }
 }

@@ -23,15 +23,15 @@ fun t1c() : Int {
   <!UNREACHABLE_CODE!>1<!>
 }
 
-fun t2() : Int {
-  if (1 > 2)
+fun t2(cond: Boolean) : Int {
+  if (cond)
     return 1
   else return 1
   <!UNREACHABLE_CODE!>1<!>
 }
 
-fun t2a() : Int {
-  if (1 > 2) {
+fun t2a(cond: Boolean) : Int {
+  if (cond) {
     return 1
     <!UNREACHABLE_CODE!>1<!>
   } else { return 1
@@ -40,8 +40,8 @@ fun t2a() : Int {
   <!UNREACHABLE_CODE!>1<!>
 }
 
-fun t3() : Any {
-  if (1 > 2)
+fun t3(cond: Boolean) : Any {
+  if (cond)
     return 2
   else return ""
   <!UNREACHABLE_CODE!>1<!>
@@ -72,16 +72,16 @@ fun t5() : Int {
   <!UNREACHABLE_CODE!>return 1<!>
 }
 
-fun t6() : Int {
-  while (1 > 2) {
+fun t6(cond: Boolean) : Int {
+  while (cond) {
     return 1
     <!UNREACHABLE_CODE!>2<!>
   }
   return 1
 }
 
-fun t6break() : Int {
-  while (1 > 2) {
+fun t6break(cond: Boolean) : Int {
+  while (cond) {
     break
     <!UNREACHABLE_CODE!>2<!>
   }

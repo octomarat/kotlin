@@ -1,7 +1,7 @@
 // KT-6774 Cannot find equals() when comparing with null
 
-fun <T: Any> fn(t1: T, t2: T?) {
-    val x = if (true) t1 else t2
+fun <T: Any> fn(t1: T, t2: T?, cond: Boolean) {
+    val x = if (cond) t1 else t2
     x == null
     x?.equals(null)
     x?.hashCode()
@@ -20,8 +20,8 @@ interface Tr {
     fun foo()
 }
 
-fun <T: Tr> fn(t1: T, t2: T?) {
-    val x = if (true) t1 else t2
+fun <T: Tr> fn(t1: T, t2: T?, cond: Boolean) {
+    val x = if (cond) t1 else t2
     x?.foo()
     x!!.foo()
 

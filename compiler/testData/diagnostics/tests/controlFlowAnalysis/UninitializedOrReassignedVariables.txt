@@ -150,7 +150,7 @@ package uninitialized_reassigned_variables {
         public constructor TestObjectExpression()
         internal final val a: kotlin.Int
         public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
-        internal final fun foo(): kotlin.Unit
+        internal final fun foo(/*0*/ cond: kotlin.Boolean): kotlin.Unit
         public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
         public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
     }

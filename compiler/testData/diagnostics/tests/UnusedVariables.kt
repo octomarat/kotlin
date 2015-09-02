@@ -61,9 +61,9 @@ class MyTest() {
         }
     }
 
-    fun testIf() {
+    fun testIf(cond: Boolean) {
         var a : Any
-        if (1 < 2) {
+        if (cond) {
             a = 23
         }
         else {
@@ -72,7 +72,7 @@ class MyTest() {
         }
         doSmth(a)
 
-        if (1 < 2) {
+        if (cond) {
             <!UNUSED_VALUE!>a =<!> 23
         }
         else {

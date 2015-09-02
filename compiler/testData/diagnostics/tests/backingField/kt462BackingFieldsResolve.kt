@@ -152,7 +152,7 @@ class T() {
 
     var r: Int = $x
     set(v: Int) {
-        if (true) {
+        if (v > 0) {
             $r = 33
         }
         else {

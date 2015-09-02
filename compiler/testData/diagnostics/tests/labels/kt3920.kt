@@ -1,9 +1,9 @@
 // !DIAGNOSTICS: -UNUSED_VARIABLE
 //KT-3920 Labeling information is lost when passing through some expressions
 
-fun test() {
+fun test(cond: Boolean) {
     run f@{
-        val x = if (1 > 2) return@f 1 else 2
+        val x = if (cond) return@f 1 else 2
         2
     }
 }

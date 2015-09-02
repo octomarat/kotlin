@@ -25,7 +25,7 @@ package unused_variables {
         public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
         public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
         internal final fun testFor(): kotlin.Unit
-        internal final fun testIf(): kotlin.Unit
+        internal final fun testIf(/*0*/ cond: kotlin.Boolean): kotlin.Unit
         internal final fun testIncDec(): kotlin.Unit
         internal final fun testSimple(): kotlin.Unit
         internal final fun testWhile(): kotlin.Unit

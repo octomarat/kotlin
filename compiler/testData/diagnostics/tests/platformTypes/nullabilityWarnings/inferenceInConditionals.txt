@@ -1,7 +1,7 @@
 package
 
 internal fun elvis(/*0*/ c: J): kotlin.Any?
-internal fun ifelse(/*0*/ c: J): kotlin.Any?
+internal fun ifelse(/*0*/ c: J, /*1*/ cond: kotlin.Boolean): kotlin.Any?
 internal fun safeCall(/*0*/ c: J?): kotlin.Unit
 
 public open class J {

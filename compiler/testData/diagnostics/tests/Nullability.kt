@@ -131,7 +131,7 @@ fun test() {
     out<!UNSAFE_CALL!>.<!>println(3)
   }
 
-  if (1 > 2) {
+  if ("".length() > 0) {
     if (out == null) return;
     <!DEBUG_INFO_SMARTCAST!>out<!>.println();
   }
@@ -209,7 +209,7 @@ fun f5(s : String?) {
   }
   s?.get(0)
   while (s == null || 1 < 2) {
-    if (1 > 2) break
+    if ("".length() > 0) break
      s?.get(0)
   }
   s?.get(0);
@@ -219,7 +219,7 @@ fun f6(s : String?) {
   s?.get(0)
   do {
     s?.get(0)
-    if (1 < 2) break;
+    if ("".length() > 0) break;
   } while (s == null)
   s?.get(0)
   do {

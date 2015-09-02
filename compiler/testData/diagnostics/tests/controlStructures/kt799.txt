@@ -6,5 +6,5 @@ package kt799 {
     internal val c: kotlin.Unit
     internal fun doSmth(/*0*/ i: kotlin.Int): kotlin.Unit
     internal fun f(/*0*/ mi: kotlin.Int = ...): kotlin.Unit
-    internal fun test(): kotlin.Unit
+    internal fun test(/*0*/ cond: kotlin.Boolean): kotlin.Unit
 }

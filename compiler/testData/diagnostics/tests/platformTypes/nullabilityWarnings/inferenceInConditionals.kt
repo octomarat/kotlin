@@ -17,8 +17,8 @@ fun safeCall(c: J?) {
   c?.nn()?.length()
 }
 
-fun ifelse(c: J): Any? {
-    return if (true) c.nn() else null
+fun ifelse(c: J, cond: Boolean): Any? {
+    return if (cond) c.nn() else null
 }
 
 fun elvis(c: J): Any? {

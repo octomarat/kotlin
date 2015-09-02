@@ -1,15 +1,15 @@
 // !DIAGNOSTICS: -DEBUG_INFO_SMARTCAST
 fun bar(x: Int) = x + 1
 
-fun foo() {
+fun foo(cond: Boolean) {
     val x: Int? = null
 
     if (x != null) {
         bar(x)
         if (<!SENSELESS_COMPARISON!>x != null<!>) {
             bar(x)
-            if (1 < 2) bar(x)
-            if (1 > 2) bar(x)
+            if (cond) bar(x)
+            if (cond) bar(x)
         }
         if (<!SENSELESS_COMPARISON!>x == null<!>) {
             bar(x)

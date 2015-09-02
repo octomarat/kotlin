@@ -1,6 +1,6 @@
-fun inlineCallExplicitError(): String {
+fun inlineCallExplicitError(cond: Boolean): String {
     inlineFun lamba@ {
-        if (true) {
+        if (cond) {
             return@lamba 2
         }
         1
@@ -9,9 +9,9 @@ fun inlineCallExplicitError(): String {
     return "x"
 }
 
-fun inlineCall(): String {
+fun inlineCall(cond: Boolean): String {
     inlineFun lamba@ {
-        if (true) {
+        if (cond) {
             return@lamba 2
         }
         1
@@ -25,9 +25,9 @@ inline fun inlineFun(s: () -> Int) {
 }
 
 
-fun noInlineCall(): String {
+fun noInlineCall(cond: Boolean): String {
     noInline lambda@ {
-        if (true) {
+        if (cond) {
             return@lambda 2
         }
         1

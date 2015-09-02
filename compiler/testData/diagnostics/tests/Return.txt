@@ -4,6 +4,6 @@ internal final class A {
     public constructor A()
     public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
-    internal final fun outer(): kotlin.Unit
+    internal final fun outer(/*0*/ cond: kotlin.Boolean): kotlin.Unit
     public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
 }

@@ -10,14 +10,14 @@ internal fun t1(): kotlin.Int
 internal fun t1a(): kotlin.Int
 internal fun t1b(): kotlin.Int
 internal fun t1c(): kotlin.Int
-internal fun t2(): kotlin.Int
-internal fun t2a(): kotlin.Int
-internal fun t3(): kotlin.Any
+internal fun t2(/*0*/ cond: kotlin.Boolean): kotlin.Int
+internal fun t2a(/*0*/ cond: kotlin.Boolean): kotlin.Int
+internal fun t3(/*0*/ cond: kotlin.Boolean): kotlin.Any
 internal fun t4(/*0*/ a: kotlin.Boolean): kotlin.Int
 internal fun t4break(/*0*/ a: kotlin.Boolean): kotlin.Int
 internal fun t5(): kotlin.Int
-internal fun t6(): kotlin.Int
-internal fun t6break(): kotlin.Int
+internal fun t6(/*0*/ cond: kotlin.Boolean): kotlin.Int
+internal fun t6break(/*0*/ cond: kotlin.Boolean): kotlin.Int
 internal fun t7(): kotlin.Int
 internal fun t7(/*0*/ b: kotlin.Int): kotlin.Int
 internal fun t7break(/*0*/ b: kotlin.Int): kotlin.Int

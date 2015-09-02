@@ -1,6 +1,6 @@
 // !CHECK_TYPE
-fun test() {
-    val a = if (true) {
+fun test(cond: Boolean) {
+    val a = if (cond) {
         val x = 1
         ({ x })
     } else {

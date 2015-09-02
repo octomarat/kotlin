@@ -4,7 +4,7 @@ interface A {
     fun <T> gen() : T
 }
 
-fun foo(a: A) {
+fun foo(a: A, cond: Boolean) {
     val <!UNUSED_VARIABLE!>g<!> : () -> Unit = {
         a.gen()  //it works: Unit is derived
     }
@@ -16,7 +16,7 @@ fun foo(a: A) {
     }
 
     val <!UNUSED_VARIABLE!>b<!> : () -> Unit = {
-        if (true) {
+        if (cond) {
             a.gen()  // unit can be inferred
         }
         else {

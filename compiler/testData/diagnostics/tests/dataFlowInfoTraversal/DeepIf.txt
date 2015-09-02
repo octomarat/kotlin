@@ -1,4 +1,4 @@
 package
 
 internal fun bar(/*0*/ x: kotlin.Int): kotlin.Int
-internal fun foo(): kotlin.Unit
+internal fun foo(/*0*/ cond: kotlin.Boolean): kotlin.Unit

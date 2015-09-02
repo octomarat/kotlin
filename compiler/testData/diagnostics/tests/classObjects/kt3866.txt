@@ -1,6 +1,6 @@
 package
 
-internal fun bar(): kotlin.Unit
+internal fun bar(/*0*/ cond: kotlin.Boolean): kotlin.Unit
 internal fun C.foo(): kotlin.Unit
 
 internal open class C {

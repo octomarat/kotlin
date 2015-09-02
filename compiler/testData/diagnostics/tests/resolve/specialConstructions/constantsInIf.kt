@@ -1,7 +1,7 @@
 // !DIAGNOSTICS: -USELESS_ELVIS
 
-fun test() {
-    bar(if (true) {
+fun test(cond: Boolean) {
+    bar(if (cond) {
         <!CONSTANT_EXPECTED_TYPE_MISMATCH!>1<!>
     } else {
         <!CONSTANT_EXPECTED_TYPE_MISMATCH!>2<!>

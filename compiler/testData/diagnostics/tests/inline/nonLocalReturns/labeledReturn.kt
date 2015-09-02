@@ -1,6 +1,6 @@
-fun inlineCall(): String {
+fun inlineCall(cond: Boolean): String {
     inlineFun {
-        if (true) {
+        if (cond) {
             return@inlineCall ""
         }
         1
@@ -14,9 +14,9 @@ inline fun inlineFun(s: ()->Int) {
 }
 
 
-fun noInlineCall(): String {
+fun noInlineCall(cond: Boolean): String {
     noInline {
-        if (true) {
+        if (cond) {
             <!RETURN_NOT_ALLOWED!>return@noInlineCall ""<!>
         }
         1

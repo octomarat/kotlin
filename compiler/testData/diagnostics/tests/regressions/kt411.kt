@@ -18,9 +18,9 @@ fun t1() {
     }
 }
 
-fun t2() : String {
+fun t2(cond: Boolean) : String {
     val <!UNUSED_VARIABLE!>g<!> : ()-> Int = l@{
-        if (true) {
+        if (cond) {
             return@l 1
         }
         <!RETURN_NOT_ALLOWED!>return "s"<!>
@@ -28,10 +28,10 @@ fun t2() : String {
     return "s"
 }
 
-fun t3() : String {
+fun t3(cond: Boolean) : String {
     invoker(
     l@{
-        if (true) {
+        if (cond) {
             <!RETURN_NOT_ALLOWED!>return@t3 "1"<!>
         }
         else {

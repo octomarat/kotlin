@@ -11,10 +11,10 @@ open class Y {
     companion object : C() {}
 }
 
-fun bar() {
+fun bar(cond: Boolean) {
     val x = X
     x.foo()
     X.foo()
     (X as C).foo()
-    ((if (1<2) X else Y) <!USELESS_CAST!>as C<!>).foo()
+    ((if (cond) X else Y) <!USELESS_CAST!>as C<!>).foo()
 }

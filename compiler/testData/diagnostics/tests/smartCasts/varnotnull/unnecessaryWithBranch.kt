@@ -5,7 +5,7 @@ fun String?.foo(): String {
 class MyClass {
     fun bar(): String {
         var s: String? = null
-        if (4 < 2)
+        if ("".length() > 0)
             s = "42"
         return s.foo()
     }    

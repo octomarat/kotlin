@@ -1,6 +1,6 @@
 package
 
-internal fun test(): kotlin.Unit
+internal fun test(/*0*/ cond: kotlin.Boolean): kotlin.Unit
 
 kotlin.annotation.annotation() internal final class ann : kotlin.Annotation {
     public constructor ann()

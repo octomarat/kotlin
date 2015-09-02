@@ -8,5 +8,5 @@ fun test() {
     <!UNUSED_VALUE!>res =<!> (true xor false)
     <!UNUSED_VALUE!>res =<!> (!true)
     <!UNUSED_VALUE!>res =<!> (true && false)
-    <!UNUSED_VALUE!>res =<!> (true || false)
+    <!UNUSED_VALUE!>res =<!> (true || <!UNREACHABLE_CODE!>false<!>)
 }

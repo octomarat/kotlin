@@ -1,7 +1,7 @@
 fun foo(numbers: Collection<Int>) {
     for (i in numbers) {
         val b: Boolean
-        if (1 < 2) {
+        if (i < 5) {
             b = false
         }
         else {

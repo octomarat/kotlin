@@ -10,11 +10,11 @@ class A {
 
 fun fooInt(l: Foo<Int>) = l
 
-fun test(bar: Bar, a: A) {
+fun test(bar: Bar, a: A, cond: Boolean) {
     // no elements with error types
     fooInt((bar()))
-    fooInt(if (true) bar() else bar())
+    fooInt(if (cond) bar() else bar())
     fooInt(label@ bar())
     fooInt(a.bar())
-    fooInt(((label@ if (true) (a.bar()) else bar())))
+    fooInt(((label@ if (cond) (a.bar()) else bar())))
 }

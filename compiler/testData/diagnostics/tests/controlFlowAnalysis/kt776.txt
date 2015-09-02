@@ -2,6 +2,6 @@ package
 
 package kt776 {
     internal fun doSmth(): kotlin.Unit
-    internal fun test1(): kotlin.Int
+    internal fun test1(/*0*/ cond: kotlin.Boolean): kotlin.Int
     internal fun test5(): kotlin.Int
 }

@@ -37,14 +37,14 @@ fun test(arr: Array<Int>) {
 
     // TODO: bug, should be fixed in CFA
     while (true) {
-        if (1 > 2 && break && 2 > 3) {
+        if (arr.size() > 0 && break && arr.size() > 2) {
 
         }
     }
 
     // TODO: bug, should be fixed in CFA
     while (true) {
-        if (1 > 2 || break || 2 > 3) {
+        if (arr.size() > 0 || break || arr.size() > 2) {
 
         }
     }

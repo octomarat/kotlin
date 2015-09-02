@@ -12,8 +12,8 @@ public class J<G> {
 
 import p.*
 
-fun foo(j: J<String>) {
-    val v = if (true) j else J.j()
+fun foo(j: J<String>, cond: Boolean) {
+    val v = if (cond) j else J.j()
     val js: J<String> = v
     // TODO: fix with dominance
 //    v checkType { it : _<J<String>>}

@@ -21,9 +21,9 @@ fun test5() : Int {
     return x
 }
 
-fun test1() : Int {
+fun test1(cond: Boolean) : Int {
     try {
-        if (true) {
+        if (cond) {
             return 1
         }
         else {

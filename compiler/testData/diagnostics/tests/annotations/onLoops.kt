@@ -1,6 +1,6 @@
-fun test() {
+fun test(cond: Boolean) {
     @ann
-    while (2 < 1) {}
+    while (cond) {}
 
     @ann
     do {} while (2 < 1)

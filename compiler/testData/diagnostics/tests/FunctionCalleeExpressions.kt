@@ -53,7 +53,7 @@ fun main(args : Array<String>) {
 
 fun f() :  Int.() -> Unit = {}
 
-fun main1() {
+fun main1(cond: Boolean) {
     1.(fun Int.() = 1)();
     {1}();
     (fun (x : Int) = x)(1)
@@ -61,8 +61,8 @@ fun main1() {
     l@{1}()
     1.((fun Int.() = 1))()
     1.(f())()
-    1.if(true){f()}else{f()}()
-    1.if(true)(fun Int.() {})else{f()}()
+    1.if(cond){f()}else{f()}()
+    1.if(cond)(fun Int.() {})else{f()}()
 
     1.<!FUNCTION_EXPECTED!>"sdf"<!>()
 

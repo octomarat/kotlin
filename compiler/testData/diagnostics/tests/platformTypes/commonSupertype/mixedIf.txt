@@ -1,3 +1,3 @@
 package
 
-internal fun foo(/*0*/ j: p.J<kotlin.String>): kotlin.Unit
+internal fun foo(/*0*/ j: p.J<kotlin.String>, /*1*/ cond: kotlin.Boolean): kotlin.Unit

@@ -280,12 +280,12 @@ fun foo() {
 
 class TestObjectExpression() {
     <!MUST_BE_INITIALIZED_OR_BE_ABSTRACT!>val a : Int<!>
-    fun foo() {
+    fun foo(cond: Boolean) {
         val <!UNUSED_VARIABLE!>a<!> = object {
             val x : Int
             <!MUST_BE_INITIALIZED_OR_BE_ABSTRACT!>val y : Int<!>
             init {
-                if (true)
+                if (cond)
                     x = 12
                 else
                     $x = 1

@@ -1,6 +1,6 @@
 class Bar {
     fun next(): Bar? {
-        if (2 == 4)
+        if ("".length() > 0)
             return this
         else
             return null
