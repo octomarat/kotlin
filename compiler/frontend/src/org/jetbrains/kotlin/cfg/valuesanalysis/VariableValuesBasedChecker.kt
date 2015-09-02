@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.cfg.outofbound
+package org.jetbrains.kotlin.cfg.valuesanalysis
 
 import com.google.common.collect.Maps
 import org.jetbrains.kotlin.cfg.pseudocode.Pseudocode
@@ -35,10 +35,10 @@ public class VariableValuesBasedChecker(
         val trace: BindingTrace,
         val report: (Diagnostic, Instruction, HashMap<Instruction, DiagnosticFactory<*>>) -> Unit
 ) {
-    private val pseudocodeVariablesDataCollector: PseudocodeIntegerVariablesDataCollector =
-            PseudocodeIntegerVariablesDataCollector(pseudocode, trace.bindingContext)
+    private val pseudocodeVariablesValuesCollector: PseudocodeVariablesValuesCollector =
+            PseudocodeVariablesValuesCollector(pseudocode, trace.bindingContext)
     private val variableValuesData: Map<Instruction, Edges<ValuesData>>? =
-            pseudocodeVariablesDataCollector.collectVariableValuesData()
+            pseudocodeVariablesValuesCollector.collectVariableValuesData()
 
     public val hasValuesInfo: Boolean = variableValuesData != null
 
@@ -94,7 +94,7 @@ public class VariableValuesBasedChecker(
             val arraySizes = valuesData.intFakeVarsToValues[arraySizeVariable]
             val accessPositions = valuesData.intFakeVarsToValues[accessPositionVariable]
             if (arraySizes != null && accessPositions != null &&
-                arraySizes is IntegerVariableValues.Defined && accessPositions is IntegerVariableValues.Defined) {
+                arraySizes is IntegerVariableValue.Defined && accessPositions is IntegerVariableValue.Defined) {
                 val sizes = arraySizes.values.sort()
                 val positions = accessPositions.values.sort()
                 if (sizes.first() <= positions.last()) {

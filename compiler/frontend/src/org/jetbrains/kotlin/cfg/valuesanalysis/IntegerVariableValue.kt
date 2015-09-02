@@ -1,53 +1,53 @@
-package org.jetbrains.kotlin.cfg.outofbound
+package org.jetbrains.kotlin.cfg.valuesanalysis
 
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import java.util.HashSet
 
-public sealed class IntegerVariableValues {
-    public abstract fun merge(other: IntegerVariableValues): IntegerVariableValues
-    public fun copy(): IntegerVariableValues = this // if some subclass is mutable, it should override this method
+public sealed class IntegerVariableValue {
+    public abstract fun merge(other: IntegerVariableValue): IntegerVariableValue
+    public fun copy(): IntegerVariableValue = this // if some subclass is mutable, it should override this method
 
     // operators
-    public open fun plus(others: IntegerVariableValues): IntegerVariableValues = IntegerVariableValues.Undefined
-    public open fun minus(others: IntegerVariableValues): IntegerVariableValues = IntegerVariableValues.Undefined
-    public open fun times(others: IntegerVariableValues): IntegerVariableValues = IntegerVariableValues.Undefined
-    public open fun div(others: IntegerVariableValues): IntegerVariableValues = IntegerVariableValues.Undefined
-    public open fun rangeTo(others: IntegerVariableValues): IntegerVariableValues = IntegerVariableValues.Undefined
-    public open fun minus(): IntegerVariableValues = IntegerVariableValues.Undefined
+    public open fun plus(others: IntegerVariableValue): IntegerVariableValue = IntegerVariableValue.Undefined
+    public open fun minus(others: IntegerVariableValue): IntegerVariableValue = IntegerVariableValue.Undefined
+    public open fun times(others: IntegerVariableValue): IntegerVariableValue = IntegerVariableValue.Undefined
+    public open fun div(others: IntegerVariableValue): IntegerVariableValue = IntegerVariableValue.Undefined
+    public open fun rangeTo(others: IntegerVariableValue): IntegerVariableValue = IntegerVariableValue.Undefined
+    public open fun minus(): IntegerVariableValue = IntegerVariableValue.Undefined
 
     // special operators (IntegerValues, IntegerValues) -> BooleanVariableValue
-    public open fun eq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun eq(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun notEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun notEq(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun lessThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun lessThan(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun greaterThan(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun greaterThan(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun greaterOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun greaterOrEq(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
-    public open fun lessOrEq(other: IntegerVariableValues, thisVarDescriptor: VariableDescriptor?)
+    public open fun lessOrEq(other: IntegerVariableValue, thisVarDescriptor: VariableDescriptor?)
             : BooleanVariableValue = BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
 
     // Represents a value of Integer variable that is not initialized
-    public object Uninitialized : IntegerVariableValues() {
+    public object Uninitialized : IntegerVariableValue() {
         override fun toString(): String = "-"
 
-        override fun merge(other: IntegerVariableValues): IntegerVariableValues =
+        override fun merge(other: IntegerVariableValue): IntegerVariableValue =
                 when (other) {
-                    is IntegerVariableValues.Defined -> other.merge(this)
+                    is IntegerVariableValue.Defined -> other.merge(this)
                     else -> other
                 }
     }
 
     // Represents a value of Integer variable that is obtained from constructions analysis don't process
     // (for ex, in `a = foo()` `a` has an Undefined value, because function calls are not processed)
-    public object Undefined : IntegerVariableValues() {
+    public object Undefined : IntegerVariableValue() {
         override fun toString(): String = "?"
 
-        override fun merge(other: IntegerVariableValues): IntegerVariableValues =
+        override fun merge(other: IntegerVariableValue): IntegerVariableValue =
                 when (other) {
-                    is IntegerVariableValues.Defined -> other.merge(this)
+                    is IntegerVariableValue.Defined -> other.merge(this)
                     else -> Undefined
                 }
     }
@@ -56,7 +56,7 @@ public sealed class IntegerVariableValues {
     public class Defined private constructor(
             possibleValues: Set<Int>,
             forceNotAllValuesKnown: Boolean = false
-    ) : IntegerVariableValues() {
+    ) : IntegerVariableValue() {
         companion object {
             private val POSSIBLE_VALUES_THRESHOLD = 2
         }
@@ -68,14 +68,14 @@ public sealed class IntegerVariableValues {
 
         init {
             assert(POSSIBLE_VALUES_THRESHOLD > 0, "Possible values threshold must be positive number")
-            assert(!possibleValues.isEmpty(), "IntegerVariableValues.Defined must contain at least one value")
+            assert(!possibleValues.isEmpty(), "IntegerVariableValue.Defined must contain at least one value")
             this.allPossibleValuesKnown = if (forceNotAllValuesKnown) false else possibleValues.size() <= POSSIBLE_VALUES_THRESHOLD
             this.values =
                 if (this.allPossibleValuesKnown)
                     possibleValues
                 else {
                     val original = possibleValues.toSortedList()
-                    val elementsToTake = Math.ceil(POSSIBLE_VALUES_THRESHOLD / 2.0).toInt()
+                    val elementsToTake = (POSSIBLE_VALUES_THRESHOLD + 1) / 2
                     val minValues = original.take(elementsToTake)
                     val maxValues = original.reverse().take(elementsToTake)
                     if (POSSIBLE_VALUES_THRESHOLD % 2 == 1)
@@ -88,7 +88,7 @@ public sealed class IntegerVariableValues {
         public constructor(possibleValue: Int) : this(setOf(possibleValue))
 
         override fun equals(other: Any?): Boolean {
-            return this identityEquals other ||
+            return this === other ||
                    other is Defined &&
                    this.allPossibleValuesKnown == other.allPossibleValuesKnown &&
                    this.values == other.values
@@ -109,17 +109,17 @@ public sealed class IntegerVariableValues {
             return "${listAsString.dropLast(1)}, ?]"
         }
 
-        override fun merge(other: IntegerVariableValues): IntegerVariableValues =
+        override fun merge(other: IntegerVariableValue): IntegerVariableValue =
             when (other) {
-                is IntegerVariableValues.Uninitialized,
-                is IntegerVariableValues.Undefined -> this.toValueWithNotAllPossibleValuesKnown()
+                is IntegerVariableValue.Uninitialized,
+                is IntegerVariableValue.Undefined -> this.toValueWithNotAllPossibleValuesKnown()
                 is Defined -> {
                     val notAllValuesKnown = !this.allPossibleValuesKnown || !other.allPossibleValuesKnown
                     Defined(this.values + other.values, forceNotAllValuesKnown = notAllValuesKnown)
                 }
             }
 
-        public fun leaveOnlyValuesInSet(valuesToLeave: Set<Int>): IntegerVariableValues {
+        public fun leaveOnlyValuesInSet(valuesToLeave: Set<Int>): IntegerVariableValue {
             val intersection = this.values.intersect(valuesToLeave)
             return if (intersection.isEmpty()) Undefined
             else Defined(intersection, forceNotAllValuesKnown = !this.allPossibleValuesKnown)
@@ -128,43 +128,43 @@ public sealed class IntegerVariableValues {
         public fun toValueWithNotAllPossibleValuesKnown(): Defined = Defined(this.values, forceNotAllValuesKnown = true)
 
         // operators overloading
-        override fun plus(others: IntegerVariableValues): IntegerVariableValues = applyEachToEach(others) { x, y -> x + y }
-        override fun minus(others: IntegerVariableValues): IntegerVariableValues = applyEachToEach(others) { x, y -> x - y }
-        override fun times(others: IntegerVariableValues): IntegerVariableValues = applyEachToEach(others) { x, y -> x * y }
+        override fun plus(others: IntegerVariableValue): IntegerVariableValue = applyEachToEach(others) { x, y -> x + y }
+        override fun minus(others: IntegerVariableValue): IntegerVariableValue = applyEachToEach(others) { x, y -> x - y }
+        override fun times(others: IntegerVariableValue): IntegerVariableValue = applyEachToEach(others) { x, y -> x * y }
 
-        override fun div(others: IntegerVariableValues): IntegerVariableValues =
+        override fun div(others: IntegerVariableValue): IntegerVariableValue =
                 if (others !is Defined)
-                    IntegerVariableValues.Undefined
+                    IntegerVariableValue.Undefined
                 else {
                     val nonZero = others.values.filter { it != 0 }.toSet()
                     if (nonZero.isEmpty())
-                        IntegerVariableValues.Undefined
+                        IntegerVariableValue.Undefined
                     else {
                         val noneZeroOthers = Defined(nonZero, forceNotAllValuesKnown = !others.allPossibleValuesKnown)
                         applyEachToEach(noneZeroOthers) { x, y -> x / y }
                     }
                 }
 
-        override fun rangeTo(others: IntegerVariableValues): IntegerVariableValues =
+        override fun rangeTo(others: IntegerVariableValue): IntegerVariableValue =
             if (others !is Defined)
-                IntegerVariableValues.Undefined
+                IntegerVariableValue.Undefined
             else {
                 val minOfLeftOperand = this.values.min() as Int
                 val maxOfRightOperand = others.values.max() as Int
                 val rangeValues = hashSetOf<Int>()
                 for (value in minOfLeftOperand..maxOfRightOperand) { rangeValues.add(value) }
                 if (rangeValues.isEmpty())
-                    IntegerVariableValues.Undefined
+                    IntegerVariableValue.Undefined
                 else
                     Defined(rangeValues, forceNotAllValuesKnown = !this.allPossibleValuesKnown || !others.allPossibleValuesKnown)
             }
 
-        override fun minus(): IntegerVariableValues {
+        override fun minus(): IntegerVariableValue {
             val valuesSet = this.values.map { -1 * it }.toSet()
             return Defined(valuesSet, forceNotAllValuesKnown = !this.allPossibleValuesKnown)
         }
 
-        private fun applyEachToEach(other: IntegerVariableValues, operation: (Int, Int) -> Int): IntegerVariableValues =
+        private fun applyEachToEach(other: IntegerVariableValue, operation: (Int, Int) -> Int): IntegerVariableValue =
                 if (other is Defined) {
                     val results = this.values
                             .map { leftOp -> other.values.map { rightOp -> operation(leftOp, rightOp) } }
@@ -172,10 +172,10 @@ public sealed class IntegerVariableValues {
                             .toSet()
                     Defined(results, forceNotAllValuesKnown = !this.allPossibleValuesKnown || !other.allPossibleValuesKnown)
                 }
-                else IntegerVariableValues.Undefined
+                else IntegerVariableValue.Undefined
 
         override fun eq(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue {
             // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
@@ -203,32 +203,32 @@ public sealed class IntegerVariableValues {
         }
 
         override fun notEq(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(eq(other, thisVarDescriptor))
+                !eq(other, thisVarDescriptor)
 
         override fun lessThan(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
                 // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
                 if (other is Defined && other.values.size() == 1) comparison(
                         other.values.single(),
                         { array, value -> array.indexOfFirst { it >= value } },
-                        { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
+                        { valuesLessThanOther, valuesGreaterOrEqToOther ->
                             if (this.allPossibleValuesKnown) {
-                                if (valuesWithLessIndices.isEmpty()) {
+                                if (valuesLessThanOther.isEmpty()) {
                                     return@comparison BooleanVariableValue.False
                                 }
-                                else if (valuesWithGreaterOrEqIndices.isEmpty()) {
+                                else if (valuesGreaterOrEqToOther.isEmpty()) {
                                     return@comparison BooleanVariableValue.True
                                 }
                             }
                             return@comparison thisVarDescriptor?.let {
                                 BooleanVariableValue.Undefined(
-                                        Restrictions.Specific.create(mapOf(it to valuesWithLessIndices)),
-                                        Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices))
+                                        Restrictions.Specific.create(mapOf(it to valuesLessThanOther)),
+                                        Restrictions.Specific.create(mapOf(it to valuesGreaterOrEqToOther))
                                 )
                             } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
                         }
@@ -236,26 +236,26 @@ public sealed class IntegerVariableValues {
                 else applyFullRestrictionsOnThisValuesIfPossible(thisVarDescriptor)
 
         override fun greaterThan(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
                 // the second check means that in expression "x 'operator' y" only one element set is supported for "y"
                 if (other is Defined && other.values.size() == 1) comparison(
                         other.values.single(),
                         { array, value -> array.indexOfFirst { it > value } },
-                        { valuesWithLessIndices, valuesWithGreaterOrEqIndices ->
+                        { valuesLessOrEqToOther, valuesGreaterThanOther ->
                             if (this.allPossibleValuesKnown) {
-                                if (valuesWithLessIndices.isEmpty()) {
+                                if (valuesLessOrEqToOther.isEmpty()) {
                                     return@comparison BooleanVariableValue.True
                                 }
-                                else if (valuesWithGreaterOrEqIndices.isEmpty()) {
+                                else if (valuesGreaterThanOther.isEmpty()) {
                                     return@comparison BooleanVariableValue.False
                                 }
                             }
                             return@comparison thisVarDescriptor?.let {
                                 BooleanVariableValue.Undefined(
-                                        Restrictions.Specific.create(mapOf(it to valuesWithGreaterOrEqIndices)),
-                                        Restrictions.Specific.create(mapOf(it to valuesWithLessIndices))
+                                        Restrictions.Specific.create(mapOf(it to valuesGreaterThanOther)),
+                                        Restrictions.Specific.create(mapOf(it to valuesLessOrEqToOther))
                                 )
                             } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
                         }
@@ -271,16 +271,16 @@ public sealed class IntegerVariableValues {
             } ?: BooleanVariableValue.Undefined.WITH_NO_RESTRICTIONS
 
         override fun greaterOrEq(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(lessThan(other, thisVarDescriptor))
+                !lessThan(other, thisVarDescriptor)
 
         override fun lessOrEq(
-                other: IntegerVariableValues,
+                other: IntegerVariableValue,
                 thisVarDescriptor: VariableDescriptor?
         ): BooleanVariableValue =
-                applyNot(greaterThan(other, thisVarDescriptor))
+                !greaterThan(other, thisVarDescriptor)
 
         private fun comparison(
                 otherValue: Int,
@@ -295,13 +295,5 @@ public sealed class IntegerVariableValues {
             val valuesWithGreaterOrEqIndices = thisArray.copyOfRange(bound, thisArray.size()).toSet()
             return createBoolean(valuesWithLessIndices, valuesWithGreaterOrEqIndices)
         }
-
-        private fun applyNot(booleanValue: BooleanVariableValue): BooleanVariableValue =
-                when (booleanValue) {
-                    is BooleanVariableValue.Undefined ->
-                        BooleanVariableValue.Undefined(booleanValue.onFalseRestrictions, booleanValue.onTrueRestrictions)
-                    is BooleanVariableValue.False -> BooleanVariableValue.True
-                    is BooleanVariableValue.True -> BooleanVariableValue.False
-                }
     }
 }

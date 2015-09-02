@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.cfg.outofbound
+package org.jetbrains.kotlin.cfg.valuesanalysis
 
 import org.jetbrains.kotlin.cfg.pseudocode.PseudoValue
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
@@ -24,11 +24,11 @@ public sealed class ValuesData {
     public abstract fun copy(): ValuesData
 
     public data class Defined(
-            val intVarsToValues: MutableMap<VariableDescriptor, IntegerVariableValues> = HashMap(),
-            val intFakeVarsToValues: MutableMap<PseudoValue, IntegerVariableValues> = HashMap(),
+            val intVarsToValues: MutableMap<VariableDescriptor, IntegerVariableValue> = HashMap(),
+            val intFakeVarsToValues: MutableMap<PseudoValue, IntegerVariableValue> = HashMap(),
             val boolVarsToValues: MutableMap<VariableDescriptor, BooleanVariableValue> = HashMap(),
             val boolFakeVarsToValues: MutableMap<PseudoValue, BooleanVariableValue> = HashMap(),
-            val collectionsToSizes: MutableMap<VariableDescriptor, IntegerVariableValues> = HashMap()
+            val collectionsToSizes: MutableMap<VariableDescriptor, IntegerVariableValue> = HashMap()
     ) : ValuesData() {
         override fun toString(): String {
             val descriptorToString: (VariableDescriptor) -> String = { it.name.asString() }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.cfg.outofbound
+package org.jetbrains.kotlin.cfg.valuesanalysis
 
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 

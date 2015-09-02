@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.cfg.outofbound
+package org.jetbrains.kotlin.cfg.valuesanalysis
 
-import com.intellij.util.containers.HashMap
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.cfg.pseudocode.instructions.eval.CallInstruction
@@ -24,63 +23,10 @@ import org.jetbrains.kotlin.psi.JetArrayAccessExpression
 import org.jetbrains.kotlin.psi.JetBinaryExpression
 import org.jetbrains.kotlin.psi.JetCallExpression
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeConstructor
-
-public object MapUtils {
-    public fun mapToString<K, V, C : Comparable<C>>(
-            map: Map<K,V>,
-            keyToComparable: (K) -> C,
-            keyToString: (K) -> String = { it.toString() },
-            valueToString: (V) -> String = { it.toString() }
-    ): String {
-        val mapAsString = map.toList().toSortedListBy { keyToComparable(it.first) }.fold("") { acc, keyValue ->
-            "$acc${keyToString(keyValue.first)}:${valueToString(keyValue.second)},"
-        }
-        if (!mapAsString.isEmpty()) {
-            return "{${mapAsString.take(mapAsString.length() - 1)}}"
-        }
-        return "{$mapAsString}"
-    }
-
-    public fun intersectMaps<K, V>(
-            map1: Map<K, V>,
-            map2: Map<K, V>,
-            intersectCorrespondingValues: (V, V) -> V
-    ): Map<K, V> {
-        val resultMap = HashMap(map1)
-        for ((key2, value2) in map2) {
-            val value1 = resultMap[key2]
-            resultMap[key2] = value1?.let { intersectCorrespondingValues(it, value2) } ?: value2
-        }
-        return resultMap
-    }
-
-    public fun unionMaps<K, V>(
-            map1: Map<K, V>,
-            map2: Map<K, V>,
-            unionCorrespondingValues: (V, V) -> V
-    ): Map<K, V> {
-        val keys = map1.keySet() intersect map2.keySet()
-        val resultMap = hashMapOf<K, V>()
-        keys.forEach { resultMap[it] = unionCorrespondingValues(map1[it] as V, map2[it] as V) }
-        return resultMap
-    }
-
-    public fun mergeMapsIntoFirst<K, V>(
-            map1: MutableMap<K, V>,
-            map2: Map<K, V>,
-            mergeCorrespondingValue: (V, V) -> V
-    ) {
-        for ((key2, value2) in map2) {
-            val value1 = map1[key2]
-            map1[key2] = value1?.let { mergeCorrespondingValue(it, value2) } ?: value2
-        }
-    }
-}
 
 public object KotlinArrayUtils {
     public fun isGenericOrPrimitiveArray(type: JetType): Boolean =
@@ -94,13 +40,13 @@ public object KotlinArrayUtils {
 
 public object KotlinListUtils {
     public fun isKotlinList(type: JetType): Boolean =
-        if (type.constructor is TypeConstructor) {
-            type.constructor.declarationDescriptor?.let {
-                val typeName = it.fqNameUnsafe.asString()
-                typeName == "kotlin.List" || typeName == "java.util.ArrayList"
-            } ?: false
-        }
-        else false
+            if (type.constructor is TypeConstructor) {
+                type.constructor.declarationDescriptor?.let {
+                    val typeName = it.fqNameUnsafe.asString()
+                    typeName == "kotlin.List" || typeName == "java.util.ArrayList"
+                } ?: false
+            }
+            else false
     // Creation
     public val listOfFunctionName: String = "listOf"
     public val arrayListOfFunctionName: String = "arrayListOf"
@@ -150,7 +96,7 @@ public object CallInstructionUtils {
     public data class RawInfo (val callInstruction: CallInstruction): CallInfo
 
     public fun tryExtractPseudoAnnotationForCollector(instruction: CallInstruction): PseudoAnnotation? =
-        tryExtractPseudoAnnotation(instruction, collectorPseudoAnnotationExtractors)
+            tryExtractPseudoAnnotation(instruction, collectorPseudoAnnotationExtractors)
 
     public fun tryExtractPseudoAnnotationForAccess(instruction: CallInstruction): PseudoAnnotation? {
         val accessOperation = accessOperatorChecker(RawInfo(instruction))
@@ -278,13 +224,13 @@ public object CallInstructionUtils {
             isExpectedReturnType: (JetType) -> Boolean,
             onSuccess: PseudoAnnotation
     ): PseudoAnnotation? =
-        if (callInfo is CallInstructionUtils.CallSignature &&
-            callInfo.calledName != null && isExpectedFunctionName(callInfo.calledName) &&
-            callInfo.returnType != null && isExpectedReturnType(callInfo.returnType)
-        ) {
-            onSuccess
-        }
-        else null
+            if (callInfo is CallInstructionUtils.CallSignature &&
+                callInfo.calledName != null && isExpectedFunctionName(callInfo.calledName) &&
+                callInfo.returnType != null && isExpectedReturnType(callInfo.returnType)
+            ) {
+                onSuccess
+            }
+            else null
 
     private inline fun checkMethodCallOnCollection(
             callInfo: CallInstructionUtils.CallInfo,

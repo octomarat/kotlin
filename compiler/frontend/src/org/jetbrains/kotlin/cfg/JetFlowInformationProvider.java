@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.cfg.PseudocodeVariablesData.VariableControlFlowState;
 import org.jetbrains.kotlin.cfg.PseudocodeVariablesData.VariableUseState;
-import org.jetbrains.kotlin.cfg.outofbound.VariableValuesBasedChecker;
+import org.jetbrains.kotlin.cfg.valuesanalysis.VariableValuesBasedChecker;
 import org.jetbrains.kotlin.cfg.pseudocode.PseudoValue;
 import org.jetbrains.kotlin.cfg.pseudocode.Pseudocode;
 import org.jetbrains.kotlin.cfg.pseudocode.PseudocodePackage;

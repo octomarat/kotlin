@@ -16,9 +16,9 @@
 
 package org.jetbrains.kotlin.cfg
 
-import org.jetbrains.kotlin.cfg.outofbound.MapUtils
-import org.jetbrains.kotlin.cfg.outofbound.PseudocodeIntegerVariablesDataCollector
-import org.jetbrains.kotlin.cfg.outofbound.ValuesData
+import org.jetbrains.kotlin.cfg.valuesanalysis.MapUtils
+import org.jetbrains.kotlin.cfg.valuesanalysis.PseudocodeVariablesValuesCollector
+import org.jetbrains.kotlin.cfg.valuesanalysis.ValuesData
 import org.jetbrains.kotlin.cfg.pseudocode.PseudocodeImpl
 import org.jetbrains.kotlin.cfg.pseudocode.instructions.Instruction
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
@@ -32,7 +32,7 @@ public abstract class AbstractVariableValuesTest : AbstractPseudocodeTest() {
     }
 
     override fun dumpInstructions(pseudocode: PseudocodeImpl, out: StringBuilder, bindingContext: BindingContext) {
-        val integerVariableValues = PseudocodeIntegerVariablesDataCollector(pseudocode, bindingContext).collectVariableValuesData()
+        val integerVariableValues = PseudocodeVariablesValuesCollector(pseudocode, bindingContext).collectVariableValuesData()
         if(integerVariableValues == null || integerVariableValues.isEmpty()) {
             return
         }
